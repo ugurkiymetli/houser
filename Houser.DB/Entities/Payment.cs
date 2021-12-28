@@ -1,0 +1,22 @@
+﻿using System;
+
+#nullable disable
+
+namespace Houser.DB.Entities
+{
+    public partial class Payment
+    {
+        public int Id { get; set; }
+        public string Type { get; set; }
+        public int Amount { get; set; }
+        public int ApartmentId { get; set; }
+        public int PayerId { get; set; }
+        public bool IsPayed { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public DateTime Idatetime { get; set; }
+        public DateTime? Udatetime { get; set; }
+
+        public virtual User Payer { get; set; }
+    }
+}
