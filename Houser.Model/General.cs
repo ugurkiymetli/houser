@@ -8,7 +8,8 @@ namespace Emerce_Model
         public T Entity { get; set; }
         public List<T> List { get; set; }
         public int TotalCount { get; set; }
-        public List<string> ValidationErrorList { get; set; }
+        //public List<string> ValidationErrorList { get; set; }
+        public string Queries { get; set; }
         public string ExceptionMessage { get; set; }
     }
 }

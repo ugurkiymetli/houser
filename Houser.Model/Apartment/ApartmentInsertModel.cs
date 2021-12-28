@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Houser.Model.Apartment
+﻿namespace Houser.Model.Apartment
 {
-    public class ApartmentCreateModel
+    public class ApartmentInsertModel
     {
         public string Block { get; set; }
         public int Number { get; set; }
@@ -12,6 +10,5 @@ namespace Houser.Model.Apartment
         public bool? IsEmpty { get; set; }
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime Idatetime { get; set; }
     }
 }

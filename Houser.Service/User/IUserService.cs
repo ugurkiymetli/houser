@@ -5,11 +5,11 @@ namespace Houser.Service.User
 {
     public interface IUserService
     {
-        public General<UserViewModel> Insert( UserCreateModel newUser );
-        public General<UserViewModel> Get();
+        public General<UserViewModel> Insert( UserInsertModel newUser );
+        public General<UserViewModel> Get( int pageSize, int pageNumber );
         public General<UserViewModel> GetById( int id );
         public General<bool> Delete( int id );
-        public General<UserUpdateModel> Update();
+        public General<UserViewModel> Update( UserInsertModel updateUser, int id );
 
     }
 }

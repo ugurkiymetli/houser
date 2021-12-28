@@ -15,15 +15,32 @@ namespace Houser.API.Controllers
         {
             userService = _userService;
         }
+        //Create User
         [HttpPost]
-        public General<UserViewModel> Insert( [FromBody] UserCreateModel newUser )
+        public General<UserViewModel> Insert( [FromBody] UserInsertModel newUser )
         {
             return userService.Insert(newUser);
         }
+        //Get User
         [HttpGet]
-        public General<UserViewModel> Get()
+        public General<UserViewModel> Get( [FromQuery] int pageSize, int pageNumber )
         {
-            return userService.Get();
+            //max page size is set to 15
+            pageSize = pageSize > 15 || pageSize <= 0 ? 15 : pageSize;
+            pageNumber = pageNumber <= 0 ? 1 : pageNumber;
+            return userService.Get(pageSize, pageNumber);
+        }
+        //Get User By Id
+        [HttpGet("{id}")]
+        public General<UserViewModel> GetById( int id )
+        {
+            return userService.GetById(id);
+        }
+        //Update User
+        [HttpPut("{id}")]
+        public General<UserViewModel> Update( [FromBody] UserInsertModel updateUser, int id )
+        {
+            return userService.Update(updateUser, id);
         }
     }
 }

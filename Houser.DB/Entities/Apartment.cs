@@ -17,7 +17,6 @@ namespace Houser.DB.Entities
         public bool IsDeleted { get; set; }
         public DateTime Idatetime { get; set; }
         public DateTime? Udatetime { get; set; }
-
         public virtual User Resident { get; set; }
     }
 }

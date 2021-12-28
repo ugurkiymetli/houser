@@ -16,15 +16,33 @@ namespace Houser.API.Controllers
             apartmentService = _apartmentService;
         }
         [HttpPost]
-        public General<ApartmentViewModel> Insert( [FromBody] ApartmentCreateModel newApartment )
+        public General<ApartmentViewModel> Insert( [FromBody] ApartmentInsertModel newApartment )
         {
             return apartmentService.Insert(newApartment);
         }
+        //Get Apartment
         [HttpGet]
-        public General<ApartmentViewModel> Get()
+        public General<ApartmentViewModel> Get( [FromQuery] int pageSize, int pageNumber )
         {
-            return apartmentService.Get();
+            //max page size is set to 15
+            pageSize = pageSize > 15 ? 15 : pageSize;
+            return apartmentService.Get(pageSize, pageNumber);
         }
+
+        //Get Apartment By Id
+        [HttpGet("{id}")]
+        public General<ApartmentViewModel> GetById( int id )
+        {
+            return apartmentService.GetById(id);
+        }
+        //Update Apartment
+        [HttpPut("{id}")]
+        public General<ApartmentViewModel> Update( [FromBody] ApartmentInsertModel updateApartment, int id )
+        {
+            return apartmentService.Update(updateApartment, id);
+        }
+
+
     }
 }
 
