@@ -6,21 +6,17 @@ namespace Houser.API.Infrastructure
     {
         public MappingProfile()
         {
-            /* USER MAPS */
-            //user create 
-            CreateMap<DB.Entities.User, Model.User.UserInsertModel>();
-            CreateMap<Model.User.UserInsertModel, DB.Entities.User>();
+            /*** USER MAPS ***/
+            //user create and update
+            CreateMap<DB.Entities.User, Model.User.UserInsertModel>().ReverseMap();
             //user view
-            CreateMap<DB.Entities.User, Model.User.UserViewModel>();
-            CreateMap<Model.User.UserViewModel, DB.Entities.User>();
+            CreateMap<DB.Entities.User, Model.User.UserViewModel>().ReverseMap();
 
-            /* APARTMENT MAPS */
-            //apartment create 
-            CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentInsertModel>();
-            CreateMap<Model.Apartment.ApartmentInsertModel, DB.Entities.Apartment>();
+            /*** APARTMENT MAPS ***/
+            //apartment create and update
+            CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentInsertModel>().ReverseMap();
             //apartment view
-            CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentViewModel>();
-            CreateMap<Model.Apartment.ApartmentViewModel, DB.Entities.Apartment>();
+            CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentViewModel>().ReverseMap();
         }
     }
 }

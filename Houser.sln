@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Houser.API", "Houser.API\Houser.API.csproj", "{D35BDE2C-01B6-4A52-B6A0-FC98E6E022DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Houser.API", "Houser.API\Houser.API.csproj", "{D35BDE2C-01B6-4A52-B6A0-FC98E6E022DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Houser.Model", "Houser.Model\Houser.Model.csproj", "{233DEEE4-65AC-4394-A1C0-9D7A7755A8DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Houser.Model", "Houser.Model\Houser.Model.csproj", "{233DEEE4-65AC-4394-A1C0-9D7A7755A8DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Houser.DB", "Houser.DB\Houser.DB.csproj", "{2F9FADA2-F12A-4BE1-80A1-CA92F0FA6BB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Houser.DB", "Houser.DB\Houser.DB.csproj", "{2F9FADA2-F12A-4BE1-80A1-CA92F0FA6BB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Houser.Service", "Houser.Service\Houser.Service.csproj", "{C54A6861-C85D-4A8F-84C0-7622D4D7849A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Houser.Service", "Houser.Service\Houser.Service.csproj", "{C54A6861-C85D-4A8F-84C0-7622D4D7849A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

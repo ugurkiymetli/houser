@@ -42,6 +42,12 @@ namespace Houser.API.Controllers
         {
             return userService.Update(updateUser, id);
         }
+        //Delete User
+        [HttpDelete("{id}")]
+        public General<bool> Delete( int id )
+        {
+            return userService.Delete(id);
+        }
     }
 }
 

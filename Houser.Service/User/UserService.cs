@@ -15,12 +15,6 @@ namespace Houser.Service.User
         {
             mapper = _mapper;
         }
-
-        public General<bool> Delete( int id )
-        {
-            throw new NotImplementedException();
-        }
-
         public General<UserViewModel> Get( int pageSize, int pageNumber )
         {
             var result = new General<UserViewModel>();
@@ -41,7 +35,6 @@ namespace Houser.Service.User
             }
             return result;
         }
-
         public General<UserViewModel> GetById( int id )
         {
             var result = new General<UserViewModel>();
@@ -59,7 +52,6 @@ namespace Houser.Service.User
             }
             return result;
         }
-
         public General<UserViewModel> Insert( UserInsertModel newUser )
         {
             var result = new General<UserViewModel>();
@@ -73,10 +65,8 @@ namespace Houser.Service.User
                     return result;
                 }
                 model.Idatetime = DateTime.Now;
-                model.IsActive = true;
-                model.IsDeleted = false;
-                model.IsAdmin = false;
-                //model.Password = GeneratePassword ();
+                /***Generate Password - Work in Progress ***/
+                //model.Password = GeneratePassword();
                 model.Password = "abc123";
                 service.Users.Add(model);
                 service.SaveChanges();
@@ -85,30 +75,45 @@ namespace Houser.Service.User
             }
             return result;
         }
-
         public General<UserViewModel> Update( UserInsertModel updateUser, int id )
         {
             var result = new General<UserViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Users.SingleOrDefault(u => u.Id == id);
+                var data = service.Users.Find(id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"User with id: {id} is not found";
                     return result;
                 }
                 //mapping
-                //data = mapper.Map<DB.Entities.User>(updateUser);
-                //FIND A BETTER WAY FOR THE UPDATE!
-                data.Name = String.IsNullOrEmpty(updateUser.Name.Trim()) ? data.Name : updateUser.Name;
-                data.Email = String.IsNullOrEmpty(updateUser.Email.Trim()) ? data.Email : updateUser.Email;
-                data.PhoneNum = String.IsNullOrEmpty(updateUser.PhoneNum.Trim()) ? data.PhoneNum : updateUser.PhoneNum;
-                data.CarPlateNum = String.IsNullOrEmpty(updateUser.CarPlateNum.Trim()) ? data.CarPlateNum : updateUser.CarPlateNum;
-                data.ApartmentId = updateUser.ApartmentId;
-
+                data = mapper.Map(updateUser, data);
                 data.Udatetime = DateTime.Now;
                 service.SaveChanges();
                 result.Entity = mapper.Map<UserViewModel>(data);
+                result.IsSuccess = true;
+            }
+            return result;
+        }
+        public General<bool> Delete( int id )
+        {
+            var result = new General<bool>();
+            using ( var service = new HouserContext() )
+            {
+                var data = service.Users.SingleOrDefault(u => u.IsActive && !u.IsDeleted && u.Id == id);
+                if ( data is null )
+                {
+                    result.ExceptionMessage = $"No user found!";
+                    return result;
+                }
+                if ( data.ApartmentId is not null )
+                {
+                    result.ExceptionMessage = $"Please remove user from apartment!";
+                    return result;
+                }
+                data.IsActive = false;
+                data.IsDeleted = true;
+                service.SaveChanges();
                 result.IsSuccess = true;
             }
             return result;

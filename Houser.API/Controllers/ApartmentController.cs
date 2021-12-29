@@ -18,7 +18,14 @@ namespace Houser.API.Controllers
         [HttpPost]
         public General<ApartmentViewModel> Insert( [FromBody] ApartmentInsertModel newApartment )
         {
-            return apartmentService.Insert(newApartment);
+            var result = new General<ApartmentViewModel>();
+            if ( newApartment.IsEmpty && newApartment.ResidentId > 0 )
+            {
+                result.ExceptionMessage = "Apartment cannot be empty and have residents";
+                return result;
+            }
+            result = apartmentService.Insert(newApartment);
+            return result;
         }
         //Get Apartment
         [HttpGet]
@@ -41,8 +48,11 @@ namespace Houser.API.Controllers
         {
             return apartmentService.Update(updateApartment, id);
         }
-
-
+        //Delete Apartment
+        [HttpDelete("{id}")]
+        public General<bool> Delete( int id )
+        {
+            return apartmentService.Delete(id);
+        }
     }
 }
-

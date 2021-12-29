@@ -16,13 +16,11 @@ namespace Houser.Service.Apartment
             mapper = _mapper;
         }
 
-
         public General<ApartmentViewModel> Get( int pageSize, int pageNumber )
         {
             var result = new General<ApartmentViewModel>();
             using ( var service = new HouserContext() )
             {
-
                 var data = service.Apartments.Where(a => a.IsActive && !a.IsDeleted);
                 data = data.OrderBy(a => a.Id);
                 data = data.Skip(( pageNumber - 1 ) * pageSize).Take(pageSize);
@@ -38,7 +36,6 @@ namespace Houser.Service.Apartment
             }
             return result;
         }
-
         public General<ApartmentViewModel> GetById( int id )
         {
             var result = new General<ApartmentViewModel>();
@@ -56,7 +53,6 @@ namespace Houser.Service.Apartment
             }
             return result;
         }
-
         public General<ApartmentViewModel> Insert( ApartmentInsertModel newApartment )
         {
             var result = new General<ApartmentViewModel>();
@@ -72,9 +68,6 @@ namespace Houser.Service.Apartment
                     return result;
                 }
                 model.Idatetime = DateTime.Now;
-                //model.IsActive = true;
-                //model.IsDeleted = false;
-                //model.IsAdmin = false;
                 service.Apartments.Add(model);
                 service.SaveChanges();
                 result.Entity = mapper.Map<ApartmentViewModel>(model);
@@ -83,14 +76,12 @@ namespace Houser.Service.Apartment
             return result;
 
         }
-
         public General<ApartmentViewModel> Update( ApartmentInsertModel updateApartment, int id )
         {
             var result = new General<ApartmentViewModel>();
 
             using ( var service = new HouserContext() )
             {
-                //var data = service.Apartments.SingleOrDefault(a => a.Id == id);
                 var data = service.Apartments.Find(id);
                 if ( data is null )
                 {
@@ -98,14 +89,7 @@ namespace Houser.Service.Apartment
                     return result;
                 }
                 //mapping
-                //data = mapper.Map<DB.Entities.Apartment>(updateApartment);
-                //FIND A BETTER WAY FOR THE UPDATE!
-                data.Block = String.IsNullOrEmpty(updateApartment.Block.Trim()) ? data.Block : updateApartment.Block;
-                data.Type = String.IsNullOrEmpty(updateApartment.Type.Trim()) ? data.Type : updateApartment.Type;
-                data.Floor = updateApartment.Floor;
-                data.Number = updateApartment.Number;
-                data.ResidentId = updateApartment.ResidentId;
-
+                data = mapper.Map(updateApartment, data);
                 data.Udatetime = DateTime.Now;
                 service.SaveChanges();
                 result.Entity = mapper.Map<ApartmentViewModel>(data);
@@ -115,7 +99,27 @@ namespace Houser.Service.Apartment
         }
         public General<bool> Delete( int id )
         {
-            throw new NotImplementedException();
+            var result = new General<bool>();
+            using ( var service = new HouserContext() )
+            {
+                var data = service.Apartments.SingleOrDefault(u => u.IsActive && !u.IsDeleted && u.Id == id);
+                if ( data is null )
+                {
+                    result.ExceptionMessage = $"No apartment found!";
+                    return result;
+                }
+                if ( data.ResidentId is not null )
+                {
+                    result.ExceptionMessage = $"Please remove user from apartment!";
+                    return result;
+                }
+                data.IsActive = false;
+                data.IsDeleted = true;
+                service.SaveChanges();
+                result.IsSuccess = true;
+            }
+            return result;
+
         }
     }
 }
