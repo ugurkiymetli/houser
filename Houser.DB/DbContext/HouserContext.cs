@@ -70,12 +70,16 @@ namespace Houser.DB
 
             modelBuilder.Entity<Payment>(entity =>
             {
+                entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.Idatetime)
                     .HasColumnType("datetime")
                     .HasColumnName("IDatetime")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.PaymentDate).HasColumnType("datetime");
+                entity.Property(e => e.PayedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PaymentDueDate).HasColumnType("date");
 
                 entity.Property(e => e.Type)
                     .IsRequired()

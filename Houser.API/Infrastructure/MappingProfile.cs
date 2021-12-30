@@ -17,6 +17,12 @@ namespace Houser.API.Infrastructure
             CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentInsertModel>().ReverseMap();
             //apartment view
             CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentViewModel>().ReverseMap();
+
+            /*** PAYMENT MAPS ***/
+            //payment create and update
+            CreateMap<DB.Entities.Payment, Model.Payment.PaymentInsertModel>().ReverseMap();
+            //payment view
+            CreateMap<DB.Entities.Payment, Model.Payment.PaymentViewModel>().ReverseMap();
         }
     }
 }

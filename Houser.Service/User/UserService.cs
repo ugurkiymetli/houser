@@ -81,7 +81,7 @@ namespace Houser.Service.User
             using ( var service = new HouserContext() )
             {
                 var data = service.Users.Find(id);
-                if ( data is null )
+                if ( data is null || ( !data.IsActive || data.IsDeleted ) )
                 {
                     result.ExceptionMessage = $"User with id: {id} is not found";
                     return result;

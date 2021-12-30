@@ -15,12 +15,6 @@ namespace Houser.API.Controllers
         {
             userService = _userService;
         }
-        //Create User
-        [HttpPost]
-        public General<UserViewModel> Insert( [FromBody] UserInsertModel newUser )
-        {
-            return userService.Insert(newUser);
-        }
         //Get User
         [HttpGet]
         public General<UserViewModel> Get( [FromQuery] int pageSize, int pageNumber )
@@ -35,6 +29,12 @@ namespace Houser.API.Controllers
         public General<UserViewModel> GetById( int id )
         {
             return userService.GetById(id);
+        }
+        //Create User
+        [HttpPost]
+        public General<UserViewModel> Insert( [FromBody] UserInsertModel newUser )
+        {
+            return userService.Insert(newUser);
         }
         //Update User
         [HttpPut("{id}")]

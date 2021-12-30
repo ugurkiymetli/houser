@@ -83,7 +83,7 @@ namespace Houser.Service.Apartment
             using ( var service = new HouserContext() )
             {
                 var data = service.Apartments.Find(id);
-                if ( data is null )
+                if ( data is null || ( !data.IsActive || data.IsDeleted ) )
                 {
                     result.ExceptionMessage = $"Apartment with id: {id} is not found";
                     return result;

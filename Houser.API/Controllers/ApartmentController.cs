@@ -15,18 +15,6 @@ namespace Houser.API.Controllers
         {
             apartmentService = _apartmentService;
         }
-        [HttpPost]
-        public General<ApartmentViewModel> Insert( [FromBody] ApartmentInsertModel newApartment )
-        {
-            var result = new General<ApartmentViewModel>();
-            if ( newApartment.IsEmpty && newApartment.ResidentId > 0 )
-            {
-                result.ExceptionMessage = "Apartment cannot be empty and have residents";
-                return result;
-            }
-            result = apartmentService.Insert(newApartment);
-            return result;
-        }
         //Get Apartment
         [HttpGet]
         public General<ApartmentViewModel> Get( [FromQuery] int pageSize, int pageNumber )
@@ -41,6 +29,19 @@ namespace Houser.API.Controllers
         public General<ApartmentViewModel> GetById( int id )
         {
             return apartmentService.GetById(id);
+        }
+        //Create Apartment
+        [HttpPost]
+        public General<ApartmentViewModel> Insert( [FromBody] ApartmentInsertModel newApartment )
+        {
+            var result = new General<ApartmentViewModel>();
+            if ( newApartment.IsEmpty && newApartment.ResidentId > 0 )
+            {
+                result.ExceptionMessage = "Apartment cannot be empty and have residents";
+                return result;
+            }
+            result = apartmentService.Insert(newApartment);
+            return result;
         }
         //Update Apartment
         [HttpPut("{id}")]

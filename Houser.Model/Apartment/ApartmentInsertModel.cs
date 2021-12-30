@@ -15,7 +15,7 @@ namespace Houser.Model.Apartment
         [Required(ErrorMessage = "{0} is required.")]
         [RegularExpression("^([1-10]{1})$", ErrorMessage = "Apartment floor must be 1-10.")]
         public int Floor { get; set; }
-
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a value bigger than {1}")]
         public int? ResidentId { get; set; }
 
         [Required(ErrorMessage = "{0} is required.")]
