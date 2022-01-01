@@ -26,9 +26,14 @@ namespace Houser.API.Controllers
         //}
 
         [HttpGet]
-        public General<PaymentViewModel> Get()
+        public General<PaymentViewModel> Get( [FromQuery] int pageSize, int pageNumber, int payerId, int apartmentId, bool isPayed )
         {
-            return userService.Get();
+            //max and default page size is set to 15 
+            pageSize = pageSize > 15 || pageSize <= 0 ? 15 : pageSize;
+            //default page number is set to 1
+            pageNumber = pageNumber <= 0 ? 1 : pageNumber;
+
+            return userService.Get(pageSize, pageNumber, payerId, apartmentId, isPayed);
         }
         //Get Payment By Id
         [HttpGet("{id}")]

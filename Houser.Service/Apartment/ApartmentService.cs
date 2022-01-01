@@ -21,7 +21,8 @@ namespace Houser.Service.Apartment
             var result = new General<ApartmentViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Apartments.Where(a => a.IsActive && !a.IsDeleted);
+                //has global filter = isActive && !isDeleted
+                var data = service.Apartments.Where(a => a.Id > 0);
                 data = data.OrderBy(a => a.Id);
                 data = data.Skip(( pageNumber - 1 ) * pageSize).Take(pageSize);
                 if ( !data.Any() )
@@ -41,7 +42,8 @@ namespace Houser.Service.Apartment
             var result = new General<ApartmentViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Apartments.SingleOrDefault(a => a.IsActive && !a.IsDeleted && a.Id == id);
+                //has global filter = isActive && !isDeleted
+                var data = service.Apartments.SingleOrDefault(a => a.Id == id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"No apartment found!";
@@ -74,16 +76,15 @@ namespace Houser.Service.Apartment
                 result.IsSuccess = true;
             }
             return result;
-
         }
         public General<ApartmentViewModel> Update( ApartmentInsertModel updateApartment, int id )
         {
             var result = new General<ApartmentViewModel>();
-
             using ( var service = new HouserContext() )
             {
+                //has global filter = isActive && !isDeleted
                 var data = service.Apartments.Find(id);
-                if ( data is null || ( !data.IsActive || data.IsDeleted ) )
+                if ( data is null )
                 {
                     result.ExceptionMessage = $"Apartment with id: {id} is not found";
                     return result;
@@ -102,7 +103,8 @@ namespace Houser.Service.Apartment
             var result = new General<bool>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Apartments.SingleOrDefault(u => u.IsActive && !u.IsDeleted && u.Id == id);
+                //has global filter = isActive && !isDeleted
+                var data = service.Apartments.SingleOrDefault(u => u.Id == id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"No apartment found!";
@@ -119,7 +121,6 @@ namespace Houser.Service.Apartment
                 result.IsSuccess = true;
             }
             return result;
-
         }
     }
 }

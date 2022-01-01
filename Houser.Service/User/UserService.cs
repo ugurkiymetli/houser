@@ -20,7 +20,7 @@ namespace Houser.Service.User
             var result = new General<UserViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Users.Where(u => u.IsActive && !u.IsDeleted);
+                var data = service.Users.Where(u => u.Id > 0);
                 data = data.OrderBy(u => u.Id);
                 data = data.Skip(( pageNumber - 1 ) * pageSize).Take(pageSize);
                 if ( !data.Any() )
@@ -40,7 +40,8 @@ namespace Houser.Service.User
             var result = new General<UserViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Users.SingleOrDefault(u => u.IsActive && !u.IsDeleted && u.Id == id);
+                //has global filter = isActive && !isDeleted
+                var data = service.Users.SingleOrDefault(u => u.Id == id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"No user found!";
@@ -81,7 +82,8 @@ namespace Houser.Service.User
             using ( var service = new HouserContext() )
             {
                 var data = service.Users.Find(id);
-                if ( data is null || ( !data.IsActive || data.IsDeleted ) )
+                //has global filter = isActive && !isDeleted
+                if ( data is null )
                 {
                     result.ExceptionMessage = $"User with id: {id} is not found";
                     return result;
@@ -100,7 +102,8 @@ namespace Houser.Service.User
             var result = new General<bool>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Users.SingleOrDefault(u => u.IsActive && !u.IsDeleted && u.Id == id);
+                //has global filter = isActive && !isDeleted
+                var data = service.Users.SingleOrDefault(u => u.Id == id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"No user found!";

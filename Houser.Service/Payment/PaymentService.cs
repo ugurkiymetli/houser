@@ -16,12 +16,20 @@ namespace Houser.Service.Payment
         {
             mapper = _mapper;
         }
-        public General<PaymentViewModel> Get()
+        public General<PaymentViewModel> Get( int pageSize, int pageNumber, int payerId, int apartmentId, bool isPayed )
         {
             var result = new General<PaymentViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Payments.Where(p => !p.IsDeleted && !p.IsPayed);
+                //has global filter = !isDeleted
+                var data = service.Payments.Where(p => p.Id > 0);
+                //filters payed payments
+                data = isPayed ? data.Where(p => p.IsPayed) : data;
+                //if payerId entered, gets payer's payments.
+                data = payerId > 0 ? data.Where(p => p.PayerId == payerId) : data;
+                //if apartmentID entered, gets apartment's payments.
+                data = apartmentId > 0 ? data.Where(p => p.ApartmentId == apartmentId) : data;
+                data = data.Skip(( pageNumber - 1 ) * pageSize).Take(pageSize);
                 data = data.OrderBy(p => p.Id);
                 if ( !data.Any() )
                 {
@@ -30,6 +38,7 @@ namespace Houser.Service.Payment
                 }
                 result.List = mapper.Map<List<PaymentViewModel>>(data);
                 result.IsSuccess = true;
+                result.Queries = $"payerId={payerId}, isPayed={isPayed}";
                 result.TotalCount = data.Count();
             }
             return result;
@@ -40,7 +49,8 @@ namespace Houser.Service.Payment
             var result = new General<PaymentViewModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Payments.SingleOrDefault(p => !p.IsDeleted && !p.IsPayed && p.Id == id);
+                //has global filter = !isDeleted
+                var data = service.Payments.SingleOrDefault(p => p.Id == id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"No payment found with id:{id}!";
@@ -65,7 +75,6 @@ namespace Houser.Service.Payment
                 p.ApartmentId == newPayment.ApartmentId);
                 if ( isPaymentCreated )
                 {
-                    //make it better
                     result.ExceptionMessage = $"Payment already created! Apartment: {model.ApartmentId} - {model.Type} - {model.Amount}₺ - {model.PaymentDueDate.ToShortDateString()}!";
                     return result;
                 }
@@ -84,7 +93,8 @@ namespace Houser.Service.Payment
             using ( var service = new HouserContext() )
             {
                 var data = service.Payments.Find(id);
-                if ( data is null || data.IsDeleted )
+                //has global filter = !isDeleted
+                if ( data is null )
                 {
                     result.ExceptionMessage = $"Payment with id: {id} is not found";
                     return result;
@@ -97,14 +107,14 @@ namespace Houser.Service.Payment
                 result.IsSuccess = true;
             }
             return result;
-
         }
         public General<bool> Delete( int id )
         {
             var result = new General<bool>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Payments.SingleOrDefault(p => !p.IsDeleted && p.Id == id);
+                //has global filter = !isDeleted
+                var data = service.Payments.SingleOrDefault(p => p.Id == id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"Payment with id: {id} is not found";

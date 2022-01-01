@@ -66,6 +66,7 @@ namespace Houser.DB
                     .WithMany(p => p.Apartments)
                     .HasForeignKey(d => d.ResidentId)
                     .HasConstraintName("FK_Apartments_Users");
+                entity.HasQueryFilter(e => !e.IsDeleted && e.IsActive);
             });
 
             modelBuilder.Entity<Payment>(entity =>
@@ -95,6 +96,7 @@ namespace Houser.DB
                     .HasForeignKey(d => d.PayerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Payments_Users");
+                entity.HasQueryFilter(e => !e.IsDeleted);
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -141,11 +143,10 @@ namespace Houser.DB
                 entity.Property(e => e.Udatetime)
                     .HasColumnType("datetime")
                     .HasColumnName("UDatetime");
+                entity.HasQueryFilter(e => !e.IsDeleted && e.IsActive);
             });
-
             OnModelCreatingPartial(modelBuilder);
         }
-
         partial void OnModelCreatingPartial( ModelBuilder modelBuilder );
     }
 }
