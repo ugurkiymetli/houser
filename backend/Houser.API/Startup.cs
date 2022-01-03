@@ -21,7 +21,7 @@ namespace Houser.API
         }
 
         public IConfiguration Configuration { get; }
-
+        readonly string AllowAllHeaders = "_allowAllHeaders";
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices( IServiceCollection services )
         {
@@ -34,6 +34,20 @@ namespace Houser.API
             services.AddTransient<IApartmentService, ApartmentService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IMessageService, MessageService>();
+            //CORS config
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: AllowAllHeaders,
+                                  builder =>
+                                  {
+                                      builder
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod()
+                                      .AllowAnyOrigin();
+                                  });
+            });
+
+
             //controller config
             services.AddControllers();
             //swagger config
@@ -56,6 +70,9 @@ namespace Houser.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            //CORS
+            app.UseCors(AllowAllHeaders);
 
             app.UseAuthorization();
 

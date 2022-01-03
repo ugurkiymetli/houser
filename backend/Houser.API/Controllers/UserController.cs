@@ -19,8 +19,8 @@ namespace Houser.API.Controllers
         [HttpGet]
         public General<UserViewModel> Get( [FromQuery] int pageSize, int pageNumber )
         {
-            //max page size is set to 15
-            pageSize = pageSize > 15 || pageSize <= 0 ? 15 : pageSize;
+            //max page size is set to 100
+            pageSize = pageSize > 100 || pageSize <= 0 ? 100 : pageSize;
             pageNumber = pageNumber <= 0 ? 1 : pageNumber;
             return userService.Get(pageSize, pageNumber);
         }
