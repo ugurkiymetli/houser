@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { fetchUsers, deleteUser } from "../api";
 
+import { fetchApartments, deleteApartment } from "../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
   Button,
   Box,
   Flex,
@@ -15,16 +19,18 @@ import {
   Tbody,
   TableCaption,
 } from "@chakra-ui/react";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-function User({ user = user }) {
+import { Link } from "react-router-dom";
+import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
+
+function Apartment({ user = user }) {
   const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
-    ["users", params.pageSize, params.pageNumber],
-    () => fetchUsers(params.pageSize, params.pageNumber)
+    ["apartments", params.pageSize, params.pageNumber],
+    () => fetchApartments(params.pageSize, params.pageNumber)
   );
 
-  const deleteMutation = useMutation(deleteUser, {
+  const deleteMutation = useMutation(deleteApartment, {
     onSuccess: () => queryClient.invalidateQueries("users"),
   });
   if (!user.isAdmin) return <Heading>User is not admin!</Heading>;
@@ -39,7 +45,7 @@ function User({ user = user }) {
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading>Users</Heading>
+        <Heading>Apartments</Heading>
         {user.isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
@@ -48,7 +54,7 @@ function User({ user = user }) {
             spacing={1}
           >
             <Button direction={"row"} colorScheme="green">
-              Add User
+              Add Apartment
             </Button>
           </Stack>
         )}
@@ -62,13 +68,14 @@ function User({ user = user }) {
         <TableCaption> Users - Total ({data.totalCount})</TableCaption>
         <Thead>
           <Tr>
+            <Th textAlign="center">Detail</Th>
             <Th textAlign="center">ID</Th>
-            <Th textAlign="center">Apartment Id</Th>
-            <Th textAlign="center">Name</Th>
-            <Th textAlign="center">Email</Th>
-            <Th textAlign="center">Phone Number</Th>
-            <Th textAlign="center">Identity Number</Th>
-            <Th textAlign="center">Car Plate Number</Th>
+            <Th textAlign="center">Resident Id</Th>
+            <Th textAlign="center">Block</Th>
+            <Th textAlign="center">Floor</Th>
+            <Th textAlign="center">Number</Th>
+            <Th textAlign="center">Type</Th>
+            <Th textAlign="center">Occupation</Th>
             <Th textAlign="center">Edit</Th>
             <Th textAlign="center">Delete</Th>
           </Tr>
@@ -77,16 +84,23 @@ function User({ user = user }) {
           {data.isSuccess &&
             data.list.map((item) => (
               <Tr key={item.id}>
+                <Th textAlign="center">
+                  <Link to={`apartment/${item.id}`}>
+                    <Button variant={"link"}>
+                      <ViewIcon mr={2} />
+                    </Button>
+                  </Link>
+                </Th>
                 <Th textAlign="center">{item.id}</Th>
                 <Th textAlign="center">
-                  {item.apartmentId == null ? "-" : item.apartmentId}
+                  {item.residentId == null ? "-" : item.residentId}
                 </Th>
-                <Th textAlign="center">{item.name}</Th>
-                <Th textAlign="center">{item.email}</Th>
-                <Th textAlign="center">{item.phoneNum}</Th>
-                <Th textAlign="center">{item.identityNum}</Th>
+                <Th textAlign="center">{item.block}</Th>
+                <Th textAlign="center">{item.floor}</Th>
+                <Th textAlign="center">{item.number}</Th>
+                <Th textAlign="center">{item.type}</Th>
                 <Th textAlign="center">
-                  {item.carPlateNum == null ? "-" : item.carPlateNum}
+                  {item.isEmpty ? "Empty" : "Occupied"}
                 </Th>
                 <Th textAlign="center">
                   <Button size={"sm"} colorScheme={"blue"}>
@@ -97,13 +111,16 @@ function User({ user = user }) {
                   <Button
                     size={"sm"}
                     colorScheme={"red"}
+                    disabled={deleteMutation.isLoading ? true : false}
                     onClick={() => {
                       deleteMutation.mutate(item.id, {
                         onSuccess: (data) => {
                           //   console.log(data);
                           !data.isSuccess
                             ? alert(data.exceptionMessage)
-                            : console.log(`User with id:${item.id} deleted!`);
+                            : console.log(
+                                `Apartment with id:${item.id} deleted!`
+                              );
                         },
                       });
                     }}
@@ -119,4 +136,4 @@ function User({ user = user }) {
   );
 }
 
-export default User;
+export default Apartment;

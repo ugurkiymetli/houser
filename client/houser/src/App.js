@@ -4,6 +4,8 @@ import { Routes, Route, Link } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Payments from "./components/Payments";
 import User from "./components/User";
+import Apartment from "./components/Apartment";
+import ApartmentDetail from "./components/ApartmentDetail";
 function App() {
   const [user, setUser] = useState({
     id: 3,
@@ -18,7 +20,7 @@ function App() {
       <Routes>
         {/* <Route path="register" element={<Register />} /> */}
         {/* <Route path="login" element={<Login />} /> */}
-        {/* <Route path="apartments" element={<Apartment />} /> */}
+        <Route path="apartments" element={<Apartment user={user} />} />
         <Route path="users" element={<User user={user} />} />
         <Route path="payments" element={<Payments user={user} />} />
         {/* <Route path="messages" element={<Message />} /> */}

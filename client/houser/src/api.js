@@ -28,3 +28,17 @@ export const deleteUser = async (id) => {
   );
   return data;
 };
+export const fetchApartments = async (pageSize = 100, pageNumber = 1) => {
+  console.log({ pageSize, pageNumber });
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENPOINT}/apartment?pageSize=${pageSize}&pageNumber=${pageNumber}  `
+  );
+  return data;
+};
+export const deleteApartment = async (id) => {
+  //   console.log({ id });
+  const { data } = await axios.delete(
+    `${process.env.REACT_APP_BASE_ENPOINT}/apartment/${id}`
+  );
+  return data;
+};

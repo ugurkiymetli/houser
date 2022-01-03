@@ -19,8 +19,8 @@ namespace Houser.API.Controllers
         [HttpGet]
         public General<ApartmentViewModel> Get( [FromQuery] int pageSize, int pageNumber )
         {
-            //max page size is set to 15
-            pageSize = pageSize > 15 ? 15 : pageSize;
+            //max page size is set to 100
+            pageSize = pageSize > 100 ? 100 : pageSize;
             return apartmentService.Get(pageSize, pageNumber);
         }
 
