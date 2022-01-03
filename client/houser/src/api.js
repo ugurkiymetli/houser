@@ -14,3 +14,17 @@ export const fetchPayments = async (payerId) => {
   return data;
 };
 
+export const fetchUsers = async (pageSize = 100, pageNumber = 1) => {
+  console.log({ pageSize, pageNumber });
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENPOINT}/user?pageSize=${pageSize}&pageNumber=${pageNumber}  `
+  );
+  return data;
+};
+export const deleteUser = async (id) => {
+  //   console.log({ id });
+  const { data } = await axios.delete(
+    `${process.env.REACT_APP_BASE_ENPOINT}/user/${id}`
+  );
+  return data;
+};
