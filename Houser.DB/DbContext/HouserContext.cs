@@ -1,5 +1,6 @@
 ﻿using Houser.DB.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 #nullable disable
 //Scaffold-DbContext "Server=(LocalDB)\MSSQLLocalDB;Database=Houser;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Entities -ContextDir DbContext -Context HouserContext -Project Houser.DB -StartupProject Houser.DB -Force
@@ -17,6 +18,7 @@ namespace Houser.DB
         }
 
         public virtual DbSet<Apartment> Apartments { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
@@ -27,6 +29,7 @@ namespace Houser.DB
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=(LocalDB)\\MSSQLLocalDB;Database=Houser;Trusted_Connection=True;");
             }
+            optionsBuilder.LogTo(Console.WriteLine);
         }
 
         protected override void OnModelCreating( ModelBuilder modelBuilder )
@@ -67,6 +70,31 @@ namespace Houser.DB
                     .HasForeignKey(d => d.ResidentId)
                     .HasConstraintName("FK_Apartments_Users");
                 entity.HasQueryFilter(e => !e.IsDeleted && e.IsActive);
+            });
+
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.Property(e => e.Idatetime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("IDatetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.MessageText)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Reciever)
+                    .WithMany(p => p.MessageRecievers)
+                    .HasForeignKey(d => d.RecieverId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Messages_Users");
+
+                entity.HasOne(d => d.Sender)
+                    .WithMany(p => p.MessageSenders)
+                    .HasForeignKey(d => d.SenderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Messages_Users1");
             });
 
             modelBuilder.Entity<Payment>(entity =>
@@ -145,8 +173,10 @@ namespace Houser.DB
                     .HasColumnName("UDatetime");
                 entity.HasQueryFilter(e => !e.IsDeleted && e.IsActive);
             });
+
             OnModelCreatingPartial(modelBuilder);
         }
+
         partial void OnModelCreatingPartial( ModelBuilder modelBuilder );
     }
 }

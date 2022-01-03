@@ -1,6 +1,7 @@
 using AutoMapper;
 using Houser.API.Infrastructure;
 using Houser.Service.Apartment;
+using Houser.Service.Message;
 using Houser.Service.Payment;
 using Houser.Service.User;
 using Microsoft.AspNetCore.Builder;
@@ -32,6 +33,7 @@ namespace Houser.API
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IApartmentService, ApartmentService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IMessageService, MessageService>();
             //controller config
             services.AddControllers();
             //swagger config

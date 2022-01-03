@@ -10,9 +10,10 @@ namespace Houser.DB.Entities
         public User()
         {
             Apartments = new HashSet<Apartment>();
+            MessageRecievers = new HashSet<Message>();
+            MessageSenders = new HashSet<Message>();
             Payments = new HashSet<Payment>();
         }
-
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -28,6 +29,8 @@ namespace Houser.DB.Entities
         public DateTime? Udatetime { get; set; }
 
         public virtual ICollection<Apartment> Apartments { get; set; }
+        public virtual ICollection<Message> MessageRecievers { get; set; }
+        public virtual ICollection<Message> MessageSenders { get; set; }
         public virtual ICollection<Payment> Payments { get; set; }
     }
 }

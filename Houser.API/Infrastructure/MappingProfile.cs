@@ -23,6 +23,12 @@ namespace Houser.API.Infrastructure
             CreateMap<DB.Entities.Payment, Model.Payment.PaymentInsertModel>().ReverseMap();
             //payment view
             CreateMap<DB.Entities.Payment, Model.Payment.PaymentViewModel>().ReverseMap();
+
+            /*** MESSAGE MAPS ***/
+            //message create 
+            CreateMap<DB.Entities.Message, Model.Message.MessageInsertModel>().ReverseMap();
+            //message view
+            CreateMap<DB.Entities.Message, Model.Message.MessageViewModel>().ReverseMap();
         }
     }
 }
