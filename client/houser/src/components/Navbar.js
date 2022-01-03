@@ -8,9 +8,7 @@ import {
   ViewIcon,
   StarIcon,
 } from "@chakra-ui/icons";
-function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [user, setUser] = useState({ name: "John Doe", isAdmin: true });
+function Navbar({ user = user }) {
   return (
     <>
       <Box bg={"gray.100"} px={4}>
@@ -22,7 +20,7 @@ function Navbar() {
             </Button>
           </Box>
           {/* if user is not logged in */}
-          {!isLoggedIn && (
+          {!user.isLoggedIn && (
             <Stack
               flex={{ base: 1, md: 0 }}
               justify={"flex-end"}
@@ -42,7 +40,7 @@ function Navbar() {
             </Stack>
           )}
           {/* if user logged in */}
-          {isLoggedIn && (
+          {user.isLoggedIn && (
             <Flex alignItems={"center"}>
               <Stack direction={"row"} spacing={user.isAdmin ? 2 : 6}>
                 {/* if user is admin */}
