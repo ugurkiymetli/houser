@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { fetchUsers, deleteUser } from "../api";
-
+import { fetchUsers, deleteUser } from "../../api";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   Button,
@@ -14,9 +14,12 @@ import {
   Th,
   Tbody,
   TableCaption,
+  // Link,
 } from "@chakra-ui/react";
+import { Link } from "react-router-dom";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 function User({ user = user }) {
+  let navigate = useNavigate();
   const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
@@ -27,7 +30,13 @@ function User({ user = user }) {
   const deleteMutation = useMutation(deleteUser, {
     onSuccess: () => queryClient.invalidateQueries("users"),
   });
-  if (!user.isAdmin) return <Heading>User is not admin!</Heading>;
+  if (!user.isAdmin) {
+    alert("User is not admin!");
+    // window.location.href = "http://localhost:11887/payments";
+
+    // navigate("/payments", { replace: true });
+    return <Heading>User is not admin!</Heading>;
+  }
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -55,19 +64,19 @@ function User({ user = user }) {
       </Flex>
       {/* CHAKRA TABLE */}
 
-      <Table mt={5} variant="simple">
+      <Table mt={5} variant="simple" colorScheme="black">
         {!data.isSuccess && (
           <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
         )}
         <TableCaption> Users - Total ({data.totalCount})</TableCaption>
         <Thead>
           <Tr>
-            <Th textAlign="center">ID</Th>
+            <Th textAlign="center">ID </Th>
             <Th textAlign="center">Apartment Id</Th>
             <Th textAlign="center">Name</Th>
             <Th textAlign="center">Email</Th>
             <Th textAlign="center">Phone Number</Th>
-            <Th textAlign="center">Identity Number</Th>
+            <Th textAlign="center">Identity Number (T.C Number)</Th>
             <Th textAlign="center">Car Plate Number</Th>
             <Th textAlign="center">Edit</Th>
             <Th textAlign="center">Delete</Th>
@@ -81,17 +90,25 @@ function User({ user = user }) {
                 <Th textAlign="center">
                   {item.apartmentId == null ? "-" : item.apartmentId}
                 </Th>
-                <Th textAlign="center">{item.name}</Th>
-                <Th textAlign="center">{item.email}</Th>
-                <Th textAlign="center">{item.phoneNum}</Th>
+                <Th textTransform="capitalize" textAlign="center">
+                  {item.name}
+                </Th>
+                <Th textTransform={"lowercase"} textAlign="center">
+                  <a href={`mailto:${item.email}`}>{item.email}</a>
+                </Th>
+                <Th textAlign="center">
+                  <a href={`tel:+90${item.phoneNum}`}>+90{item.phoneNum}</a>
+                </Th>
                 <Th textAlign="center">{item.identityNum}</Th>
                 <Th textAlign="center">
                   {item.carPlateNum == null ? "-" : item.carPlateNum}
                 </Th>
                 <Th textAlign="center">
-                  <Button size={"sm"} colorScheme={"blue"}>
-                    <EditIcon />
-                  </Button>
+                  <Link to={`./${item.id}`}>
+                    <Button size={"sm"} colorScheme={"blue"}>
+                      <EditIcon />
+                    </Button>
+                  </Link>
                 </Th>
                 <Th textAlign="center">
                   <Button
@@ -103,7 +120,7 @@ function User({ user = user }) {
                           //   console.log(data);
                           !data.isSuccess
                             ? alert(data.exceptionMessage)
-                            : console.log(`User with id:${item.id} deleted!`);
+                            : alert(`User with id:${item.id} deleted!`);
                         },
                       });
                     }}

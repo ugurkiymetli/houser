@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchPayments } from "../api";
+import { fetchPayments } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   Button,
@@ -52,7 +52,7 @@ function Payments({ user = user }) {
       </Flex>
       {/* CHAKRA TABLE */}
 
-      <Table mt={5} variant="simple">
+      <Table variant="striped" colorScheme="gray" mt={5}>
         {!data.isSuccess && (
           <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
         )}
@@ -61,7 +61,9 @@ function Payments({ user = user }) {
         <Thead>
           <Tr>
             <Th textAlign="center">ID</Th>
-            <Th textAlign="center">Amount</Th>
+            <Th isNumeric textAlign="center">
+              Amount
+            </Th>
             <Th textAlign="center">Type</Th>
             <Th textAlign="center">Payed</Th>
             <Th textAlign="center">Payer</Th>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { fetchApartments, deleteApartment } from "../api";
+import { fetchApartments, deleteApartment } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   Alert,
@@ -68,7 +68,6 @@ function Apartment({ user = user }) {
         <TableCaption> Users - Total ({data.totalCount})</TableCaption>
         <Thead>
           <Tr>
-            <Th textAlign="center">Detail</Th>
             <Th textAlign="center">ID</Th>
             <Th textAlign="center">Resident Id</Th>
             <Th textAlign="center">Block</Th>
@@ -84,13 +83,6 @@ function Apartment({ user = user }) {
           {data.isSuccess &&
             data.list.map((item) => (
               <Tr key={item.id}>
-                <Th textAlign="center">
-                  <Link to={`apartment/${item.id}`}>
-                    <Button variant={"link"}>
-                      <ViewIcon mr={2} />
-                    </Button>
-                  </Link>
-                </Th>
                 <Th textAlign="center">{item.id}</Th>
                 <Th textAlign="center">
                   {item.residentId == null ? "-" : item.residentId}
@@ -103,9 +95,11 @@ function Apartment({ user = user }) {
                   {item.isEmpty ? "Empty" : "Occupied"}
                 </Th>
                 <Th textAlign="center">
-                  <Button size={"sm"} colorScheme={"blue"}>
-                    <EditIcon />
-                  </Button>
+                  <Link to={`./${item.id}`}>
+                    <Button size={"sm"} colorScheme={"blue"}>
+                      <EditIcon />
+                    </Button>
+                  </Link>
                 </Th>
                 <Th textAlign="center">
                   <Button
