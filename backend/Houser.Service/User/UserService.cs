@@ -2,9 +2,11 @@
 using Emerce_Model;
 using Houser.DB;
 using Houser.Model.User;
+using PasswordGenerator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace Houser.Service.User
 {
@@ -57,6 +59,7 @@ namespace Houser.Service.User
         {
             var result = new General<UserViewModel>();
             var model = mapper.Map<DB.Entities.User>(newUser);
+
             using ( var service = new HouserContext() )
             {
                 bool isUserCreated = service.Users.Any(u => u.IdentityNum == model.IdentityNum);
@@ -65,10 +68,14 @@ namespace Houser.Service.User
                     result.ExceptionMessage = $"User with identity number {model.IdentityNum} is already created!";
                     return result;
                 }
+                /*** Generate password maker ***/
+                var pwd = new Password().IncludeLowercase().IncludeUppercase().LengthRequired(10);
+                /*** Generate Password ***/
+                string password = pwd.Next();
+                /*** Hash Password ***/
+                model.Password = BCryptNet.HashPassword(password);
+
                 model.Idatetime = DateTime.Now;
-                /***Generate Password - Work in Progress ***/
-                //model.Password = GeneratePassword();
-                model.Password = "abc123";
                 service.Users.Add(model);
                 service.SaveChanges();
                 result.Entity = mapper.Map<UserViewModel>(model);
@@ -118,6 +125,22 @@ namespace Houser.Service.User
                 data.IsDeleted = true;
                 service.SaveChanges();
                 result.IsSuccess = true;
+            }
+            return result;
+        }
+        public General<UserLoginResponseModel> Login( UserLoginRequestModel loginUser )
+        {
+            var result = new General<UserLoginResponseModel>();
+            using ( var service = new HouserContext() )
+            {
+                var data = service.Users.SingleOrDefault(u => u.Email == loginUser.Email && u.Password == loginUser.Password);
+                if ( data is null || !BCryptNet.Verify(loginUser.Password, data.Password) )
+                {
+                    result.ExceptionMessage = "Username or password is incorrect";
+                    return result;
+                }
+                result.IsSuccess = true;
+                result.Entity = mapper.Map<UserLoginResponseModel>(data);
             }
             return result;
         }

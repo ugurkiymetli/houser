@@ -1,4 +1,9 @@
 ﻿using AutoMapper;
+using Houser.DB.Entities;
+using Houser.Model.Apartment;
+using Houser.Model.Message;
+using Houser.Model.Payment;
+using Houser.Model.User;
 
 namespace Houser.API.Infrastructure
 {
@@ -8,27 +13,32 @@ namespace Houser.API.Infrastructure
         {
             /*** USER MAPS ***/
             //user create and update
-            CreateMap<DB.Entities.User, Model.User.UserInsertModel>().ReverseMap();
+            CreateMap<User, UserInsertModel>().ReverseMap();
             //user view
-            CreateMap<DB.Entities.User, Model.User.UserViewModel>().ReverseMap();
+            CreateMap<User, UserViewModel>().ReverseMap();
+            //user login 
+            CreateMap<User, UserLoginResponseModel>().ReverseMap();
+
 
             /*** APARTMENT MAPS ***/
             //apartment create and update
-            CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentInsertModel>().ReverseMap();
+            CreateMap<Apartment, ApartmentInsertModel>().ReverseMap();
             //apartment view
-            CreateMap<DB.Entities.Apartment, Model.Apartment.ApartmentViewModel>().ReverseMap();
+            CreateMap<Apartment, ApartmentViewModel>().ReverseMap();
+
 
             /*** PAYMENT MAPS ***/
             //payment create and update
-            CreateMap<DB.Entities.Payment, Model.Payment.PaymentInsertModel>().ReverseMap();
+            CreateMap<Payment, PaymentInsertModel>().ReverseMap();
             //payment view
-            CreateMap<DB.Entities.Payment, Model.Payment.PaymentViewModel>().ReverseMap();
+            CreateMap<Payment, PaymentViewModel>().ReverseMap();
+
 
             /*** MESSAGE MAPS ***/
             //message create 
-            CreateMap<DB.Entities.Message, Model.Message.MessageInsertModel>().ReverseMap();
+            CreateMap<Message, MessageInsertModel>().ReverseMap();
             //message view
-            CreateMap<DB.Entities.Message, Model.Message.MessageViewModel>().ReverseMap();
+            CreateMap<Message, MessageViewModel>().ReverseMap();
         }
     }
 }
