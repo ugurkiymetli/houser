@@ -2,6 +2,7 @@
 using Emerce_Model;
 using Houser.DB;
 using Houser.Model.User;
+using Houser.Service.Helpers;
 using PasswordGenerator;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,11 @@ namespace Houser.Service.User
     public class UserService : IUserService
     {
         private readonly IMapper mapper;
-        public UserService( IMapper _mapper )
+        private IJwtUtils jwtUtils;
+        public UserService( IMapper _mapper, IJwtUtils _jwtUtils )
         {
             mapper = _mapper;
+            jwtUtils = _jwtUtils;
         }
         public General<UserViewModel> Get( int pageSize, int pageNumber )
         {
@@ -62,10 +65,10 @@ namespace Houser.Service.User
 
             using ( var service = new HouserContext() )
             {
-                bool isUserCreated = service.Users.Any(u => u.IdentityNum == model.IdentityNum);
+                bool isUserCreated = service.Users.Any(u => u.Email == model.Email);
                 if ( isUserCreated )
                 {
-                    result.ExceptionMessage = $"User with identity number {model.IdentityNum} is already created!";
+                    result.ExceptionMessage = $"User with identity number {model.Email} is already created!";
                     return result;
                 }
                 /*** Generate password maker ***/
@@ -73,6 +76,7 @@ namespace Houser.Service.User
                 /*** Generate Password ***/
                 string password = pwd.Next();
                 /*** Hash Password ***/
+                result.ExceptionMessage = "generated password: " + password;
                 model.Password = BCryptNet.HashPassword(password);
 
                 model.Idatetime = DateTime.Now;
@@ -125,6 +129,7 @@ namespace Houser.Service.User
                 data.IsDeleted = true;
                 service.SaveChanges();
                 result.IsSuccess = true;
+                result.Entity = true;
             }
             return result;
         }
@@ -133,7 +138,8 @@ namespace Houser.Service.User
             var result = new General<UserLoginResponseModel>();
             using ( var service = new HouserContext() )
             {
-                var data = service.Users.SingleOrDefault(u => u.Email == loginUser.Email && u.Password == loginUser.Password);
+                var data = service.Users.SingleOrDefault(u => u.Email == loginUser.Email);
+                //validation
                 if ( data is null || !BCryptNet.Verify(loginUser.Password, data.Password) )
                 {
                     result.ExceptionMessage = "Username or password is incorrect";
@@ -141,6 +147,17 @@ namespace Houser.Service.User
                 }
                 result.IsSuccess = true;
                 result.Entity = mapper.Map<UserLoginResponseModel>(data);
+                result.Entity.Token = jwtUtils.GenerateToken(data);
+            }
+            return result;
+        }
+        public General<bool> IsUserAdmin( int id )
+        {
+            var result = new General<bool>();
+
+            using ( var service = new HouserContext() )
+            {
+                result.IsSuccess = service.Users.Any(u => u.Id == id && u.IsAdmin);
             }
             return result;
         }

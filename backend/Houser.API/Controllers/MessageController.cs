@@ -1,10 +1,12 @@
 ﻿using Emerce_Model;
+using Houser.API.Helpers;
 using Houser.Model.Message;
 using Houser.Service.Message;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Houser.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MessageController : ControllerBase

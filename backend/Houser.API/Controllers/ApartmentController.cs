@@ -1,10 +1,12 @@
 ﻿using Emerce_Model;
+using Houser.API.Helpers;
 using Houser.Model.Apartment;
 using Houser.Service.Apartment;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Houser.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ApartmentController : ControllerBase
@@ -30,6 +32,7 @@ namespace Houser.API.Controllers
         {
             return apartmentService.GetById(id);
         }
+        [Admin]
         //Create Apartment
         [HttpPost]
         public General<ApartmentViewModel> Insert( [FromBody] ApartmentInsertModel newApartment )
@@ -43,12 +46,14 @@ namespace Houser.API.Controllers
             result = apartmentService.Insert(newApartment);
             return result;
         }
+        [Admin]
         //Update Apartment
         [HttpPut("{id}")]
         public General<ApartmentViewModel> Update( [FromBody] ApartmentInsertModel updateApartment, int id )
         {
             return apartmentService.Update(updateApartment, id);
         }
+        [Admin]
         //Delete Apartment
         [HttpDelete("{id}")]
         public General<bool> Delete( int id )

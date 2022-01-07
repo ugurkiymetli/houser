@@ -1,10 +1,12 @@
 ﻿using Emerce_Model;
+using Houser.API.Helpers;
 using Houser.Model.Payment;
 using Houser.Service.Payment;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Houser.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PaymentController : ControllerBase
@@ -41,6 +43,7 @@ namespace Houser.API.Controllers
         {
             return userService.GetById(id);
         }
+        [Admin]
         //Create Payment
         [HttpPost]
         public General<PaymentViewModel> Insert( [FromBody] PaymentInsertModel newPayment )
@@ -58,13 +61,14 @@ namespace Houser.API.Controllers
             }
             return result;
         }
-
+        [Admin]
         //Update Payment
         [HttpPut("{id}")]
         public General<PaymentViewModel> Update( [FromBody] PaymentInsertModel updatePayment, int id )
         {
             return userService.Update(updatePayment, id);
         }
+        [Admin]
         //Delete Payment
         [HttpDelete("{id}")]
         public General<bool> Delete( int id )

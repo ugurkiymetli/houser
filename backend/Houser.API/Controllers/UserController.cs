@@ -1,10 +1,12 @@
 ﻿using Emerce_Model;
+using Houser.API.Helpers;
 using Houser.Model.User;
 using Houser.Service.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Houser.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -14,6 +16,13 @@ namespace Houser.API.Controllers
         public UserController( IUserService _userService )
         {
             userService = _userService;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public General<UserLoginResponseModel> Login( UserLoginRequestModel loginUser )
+        {
+            return userService.Login(loginUser);
         }
         //Get User
         [HttpGet]
@@ -31,17 +40,20 @@ namespace Houser.API.Controllers
             return userService.GetById(id);
         }
         //Create User
-        [HttpPost]
+        [Admin]
+        [HttpPost("register")]
         public General<UserViewModel> Insert( [FromBody] UserInsertModel newUser )
         {
             return userService.Insert(newUser);
         }
+
         //Update User
         [HttpPut("{id}")]
         public General<UserViewModel> Update( [FromBody] UserInsertModel updateUser, int id )
         {
             return userService.Update(updateUser, id);
         }
+        [Admin]
         //Delete User
         [HttpDelete("{id}")]
         public General<bool> Delete( int id )

@@ -16,6 +16,7 @@ namespace Houser.API.Infrastructure
             CreateMap<User, UserInsertModel>().ReverseMap();
             //user view
             CreateMap<User, UserViewModel>().ReverseMap();
+            CreateMap<UserViewModel, User>();
             //user login 
             CreateMap<User, UserLoginResponseModel>().ReverseMap();
 

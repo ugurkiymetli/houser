@@ -1,6 +1,8 @@
 using AutoMapper;
+using Houser.API.Helpers;
 using Houser.API.Infrastructure;
 using Houser.Service.Apartment;
+using Houser.Service.Helpers;
 using Houser.Service.Message;
 using Houser.Service.Payment;
 using Houser.Service.User;
@@ -25,15 +27,20 @@ namespace Houser.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices( IServiceCollection services )
         {
+
+            //appsettings config
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            //JWT config
+            services.AddScoped<IJwtUtils, JwtUtils>();
             //mapper configuration
             var _mappingProfile = new MapperConfiguration(mp => { mp.AddProfile(new MappingProfile()); });
             IMapper mapper = _mappingProfile.CreateMapper();
             services.AddSingleton(mapper);
             //services for user, apartment, payments
-            services.AddTransient<IUserService, UserService>();
-            services.AddTransient<IApartmentService, ApartmentService>();
-            services.AddTransient<IPaymentService, PaymentService>();
-            services.AddTransient<IMessageService, MessageService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IApartmentService, ApartmentService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IMessageService, MessageService>();
             //CORS config
             services.AddCors(options =>
             {
@@ -76,6 +83,8 @@ namespace Houser.API
 
             app.UseAuthorization();
 
+            // custom jwt auth middleware
+            app.UseMiddleware<JwtMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
