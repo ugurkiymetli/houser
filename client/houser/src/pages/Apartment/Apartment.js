@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-
 import { fetchApartments, deleteApartment } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  Spinner,
   Button,
   Box,
   Flex,
@@ -22,7 +18,10 @@ import {
 import { Link } from "react-router-dom";
 import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
 
-function Apartment({ user = user }) {
+import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../../components/LoadingSpinner";
+function Apartment() {
+  const { user, isAdmin } = useAuth();
   const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
@@ -33,12 +32,16 @@ function Apartment({ user = user }) {
   const deleteMutation = useMutation(deleteApartment, {
     onSuccess: () => queryClient.invalidateQueries("users"),
   });
-  if (!user.isAdmin) return <Heading>User is not admin!</Heading>;
+  if (!isAdmin) return <Heading>User is not admin!</Heading>;
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
   if (isError) {
-    return <div>Error {error.message}</div>;
+    return (
+      <div>
+        Error {error.message} - {data}
+      </div>
+    );
   }
   if (!data.isSuccess) console.log(data.exceptionMessage);
 
@@ -46,7 +49,7 @@ function Apartment({ user = user }) {
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
         <Heading>Apartments</Heading>
-        {user.isAdmin && (
+        {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
             justify={"flex-end"}
@@ -112,9 +115,10 @@ function Apartment({ user = user }) {
                           //   console.log(data);
                           !data.isSuccess
                             ? alert(data.exceptionMessage)
-                            : console.log(
-                                `Apartment with id:${item.id} deleted!`
-                              );
+                            : alert(`Apartment with id:${item.id} deleted!`);
+                          // console.log(
+                          //     `Apartment with id:${item.id} deleted!`
+                          //   );
                         },
                       });
                     }}

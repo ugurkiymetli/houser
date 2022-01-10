@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchUsers, deleteUser } from "../../api";
+import { deleteUser, fetchUsers } from "../../api";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
@@ -18,7 +18,11 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-function User({ user = user }) {
+import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../../components/LoadingSpinner";
+function User() {
+  const { user, isAdmin } = useAuth();
+
   let navigate = useNavigate();
   const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
@@ -30,15 +34,15 @@ function User({ user = user }) {
   const deleteMutation = useMutation(deleteUser, {
     onSuccess: () => queryClient.invalidateQueries("users"),
   });
-  if (!user.isAdmin) {
-    alert("User is not admin!");
+  if (!isAdmin) {
+    // alert("User is not admin!");
     // window.location.href = "http://localhost:11887/payments";
 
     // navigate("/payments", { replace: true });
     return <Heading>User is not admin!</Heading>;
   }
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
   if (isError) {
     return <div>Error {error.message}</div>;
@@ -49,7 +53,7 @@ function User({ user = user }) {
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
         <Heading>Users</Heading>
-        {user.isAdmin && (
+        {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
             justify={"flex-end"}

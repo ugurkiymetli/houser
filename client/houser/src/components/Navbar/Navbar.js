@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Box, Flex, Avatar, Button, Stack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import {
@@ -7,8 +6,12 @@ import {
   DragHandleIcon,
   ViewIcon,
   StarIcon,
+  CloseIcon,
 } from "@chakra-ui/icons";
-function Navbar({ user = user }) {
+import { useAuth } from "../../context/AuthContext";
+function Navbar() {
+  const { user, isLoggedIn, isAdmin, logout } = useAuth();
+
   return (
     <>
       <Box bg={"gray.100"} px={4}>
@@ -20,7 +23,7 @@ function Navbar({ user = user }) {
             </Button>
           </Box>
           {/* if user is not logged in */}
-          {!user.isLoggedIn && (
+          {!isLoggedIn && (
             <Stack
               flex={{ base: 1, md: 0 }}
               justify={"flex-end"}
@@ -40,11 +43,11 @@ function Navbar({ user = user }) {
             </Stack>
           )}
           {/* if user logged in */}
-          {user.isLoggedIn && (
+          {isLoggedIn && (
             <Flex alignItems={"center"}>
-              <Stack direction={"row"} spacing={user.isAdmin ? 2 : 6}>
+              <Stack direction={"row"} spacing={isAdmin ? 2 : 6}>
                 {/* if user is admin */}
-                {user.isAdmin && (
+                {isAdmin && (
                   <>
                     <Link to="/apartments">
                       <Button variant="outline" colorScheme="black" href={"#"}>
@@ -82,6 +85,10 @@ function Navbar({ user = user }) {
                     {user.name}
                   </Button>
                 </Link>
+                <Button colorScheme="red" onClick={logout}>
+                  Logout
+                  <CloseIcon boxSize="3" ml="2" />
+                </Button>
               </Stack>
             </Flex>
           )}

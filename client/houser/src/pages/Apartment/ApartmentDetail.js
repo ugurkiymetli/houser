@@ -1,7 +1,8 @@
 import React from "react";
 import { fetchApartmentDetail, updateApartment } from "../../api";
-
 import {
+  Flex,
+  Spinner,
   Heading,
   Box,
   FormControl,
@@ -13,22 +14,24 @@ import {
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
+import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
-function ApartmentDetail({ user: user }) {
+function ApartmentDetail() {
+  const { user, isAdmin } = useAuth();
+
   const queryClient = useQueryClient();
-
   const { apartmentId } = useParams();
-
   const { isLoading, error, data } = useQuery(
     ["apartment-detail", apartmentId],
     () => fetchApartmentDetail(apartmentId)
   );
 
-  if (!user.isAdmin && user.apartmentId != apartmentId)
+  if (!isAdmin && user.apartmentId != apartmentId)
     return <Heading>User is not admin!</Heading>;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {

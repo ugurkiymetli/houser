@@ -13,18 +13,20 @@ import {
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
-function UserDetail({ user: user }) {
+import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../../components/LoadingSpinner";
+function UserDetail() {
   const { userId } = useParams();
-
+  const { user, isAdmin } = useAuth();
   const { isLoading, error, data } = useQuery(["user-detail", userId], () =>
     fetchUserDetail(userId)
   );
 
-  if (!user.isAdmin && user.id != userId)
+  if (!isAdmin && user.id != userId)
     return <Heading>User is not admin!</Heading>;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (error) {

@@ -17,7 +17,11 @@ import {
 
 import { Link } from "react-router-dom";
 import moment from "moment";
-function Payments({ user = user }) {
+import { useAuth } from "../../context/AuthContext";
+import LoadingSpinner from "../../components/LoadingSpinner";
+function Payments() {
+  const { user, isAdmin } = useAuth();
+  console.log("payments", user.id);
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
     ["payments", user.id],
@@ -25,26 +29,25 @@ function Payments({ user = user }) {
   );
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
   if (isError) {
     return <div>Error {error.message}</div>;
   }
   if (!data.isSuccess) console.log(data.exceptionMessage);
 
-  //   console.log({ user });
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
         <Heading>Payments</Heading>
-        {user.isAdmin && (
+        {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
             justify={"flex-end"}
             direction={"row"}
             spacing={1}
           >
-            <Button direction={"row"} variant="outline" colorScheme="blue">
+            <Button direction={"row"} colorScheme="green">
               Add Payment
             </Button>
           </Stack>

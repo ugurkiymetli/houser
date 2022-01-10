@@ -1,44 +1,73 @@
 import axios from "axios";
-// export const fetchProductList = async ({ pageSize = 1, pageNumber = 1 }) => {
-//   const { data } = await axios.get(
-//     `${process.env.REACT_APP_BASE_ENDPOINT}/user?pageSize=${pageSize}&pageNumber=${pageNumber}`
-//   );
-//   return data;
-// };
+
+axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 
 export const fetchPayments = async (payerId) => {
-  //   console.log({ payerId });
   const { data } = await axios.get(
-    `${process.env.REACT_APP_BASE_ENPOINT}/payment?payerId=${payerId}  `
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment?payerId=${payerId}  `
+  );
+  return data;
+};
+
+export const fetchLogin = async (input) => {
+  const { data } = await axios.post(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/user/login`,
+    input
   );
   return data;
 };
 
 export const fetchUsers = async (pageSize = 100, pageNumber = 1) => {
-  console.log({ pageSize, pageNumber });
   const { data } = await axios.get(
-    `${process.env.REACT_APP_BASE_ENPOINT}/user?pageSize=${pageSize}&pageNumber=${pageNumber}  `
+    `${process.env.REACT_APP_BASE_ENDPOINT}/user?pageSize=${pageSize}&pageNumber=${pageNumber}  `
   );
   return data;
 };
+export const fetchUserDetail = async (id) => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/user/${id}`
+  );
+  return data;
+};
+
+export const updateUser = async (input, id) => {
+  const { data } = await axios.put(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/user/${id}`,
+    input
+  );
+  return data;
+};
+
 export const deleteUser = async (id) => {
-  //   console.log({ id });
   const { data } = await axios.delete(
-    `${process.env.REACT_APP_BASE_ENPOINT}/user/${id}`
+    `${process.env.REACT_APP_BASE_ENDPOINT}/user/${id}`
   );
   return data;
 };
 export const fetchApartments = async (pageSize = 100, pageNumber = 1) => {
-  console.log({ pageSize, pageNumber });
   const { data } = await axios.get(
-    `${process.env.REACT_APP_BASE_ENPOINT}/apartment?pageSize=${pageSize}&pageNumber=${pageNumber}  `
+    `${process.env.REACT_APP_BASE_ENDPOINT}/apartment?pageSize=${pageSize}&pageNumber=${pageNumber}  `
   );
   return data;
 };
+export const fetchApartmentDetail = async (id) => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/apartment/${id}`
+  );
+  return data;
+};
+
+export const updateApartment = async (input, id) => {
+  const { data } = await axios.put(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/apartment/${id}`,
+    input
+  );
+  return data;
+};
+
 export const deleteApartment = async (id) => {
-  //   console.log({ id });
   const { data } = await axios.delete(
-    `${process.env.REACT_APP_BASE_ENPOINT}/apartment/${id}`
+    `${process.env.REACT_APP_BASE_ENDPOINT}/apartment/${id}`
   );
   return data;
 };
