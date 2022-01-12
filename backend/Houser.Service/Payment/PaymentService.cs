@@ -63,6 +63,7 @@ namespace Houser.Service.Payment
             return result;
         }
 
+
         public General<PaymentViewModel> Insert( PaymentInsertModel newPayment )
         {
             var result = new General<PaymentViewModel>();
@@ -100,6 +101,7 @@ namespace Houser.Service.Payment
                     return result;
                 }
                 //mapping
+
                 data = mapper.Map(updatePayment, data);
                 data.Udatetime = DateTime.Now;
                 service.SaveChanges();

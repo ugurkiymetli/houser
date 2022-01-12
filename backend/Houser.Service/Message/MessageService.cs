@@ -26,6 +26,13 @@ namespace Houser.Service.Message
                     .GroupBy(x => x.SenderId).Select(x => x.First());
                 if ( !data.Any() )
                 {
+                    data = service.Messages
+                    .Where(x => x.SenderId == receiverId)
+                    .OrderByDescending(x => x.Idatetime).ToList()
+                    .GroupBy(x => x.SenderId).Select(x => x.First());
+                }
+                if ( !data.Any() )
+                {
                     result.ExceptionMessage = $"No message found!";
                     return result;
                 }

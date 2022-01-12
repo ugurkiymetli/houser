@@ -24,6 +24,7 @@ namespace Houser.API.Controllers
         {
             return userService.Login(loginUser);
         }
+        [Admin]
         //Get User
         [HttpGet]
         public General<UserViewModel> Get( [FromQuery] int pageSize, int pageNumber )
@@ -46,7 +47,7 @@ namespace Houser.API.Controllers
         {
             return userService.Insert(newUser);
         }
-
+        [Admin]
         //Update User
         [HttpPut("{id}")]
         public General<UserViewModel> Update( [FromBody] UserInsertModel updateUser, int id )
