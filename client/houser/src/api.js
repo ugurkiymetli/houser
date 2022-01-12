@@ -71,3 +71,24 @@ export const deleteApartment = async (id) => {
   );
   return data;
 };
+
+export const fetchMessageList = async (receiverId) => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/message?receiverId=${receiverId}`
+  );
+  return data;
+};
+export const fetchMessageDetail = async (receiverId, senderId) => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/Message/detail?receiverId=${receiverId}&senderId=${senderId}`
+  );
+  return data;
+};
+
+export const insertMessage = async (input) => {
+  const { data } = await axios.post(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/Message`,
+    input
+  );
+  return data;
+};

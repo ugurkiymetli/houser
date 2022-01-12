@@ -21,7 +21,7 @@ import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 function Payments() {
   const { user, isAdmin } = useAuth();
-  console.log("payments", user.id);
+  // console.log("payments", user.id);
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
     ["payments", user.id],

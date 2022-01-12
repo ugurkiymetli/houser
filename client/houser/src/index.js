@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { AuthProvider } from "./context/AuthContext";
 import "./reset.css";
 import "./index.css";
+import "antd/dist/antd.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";

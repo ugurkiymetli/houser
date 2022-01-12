@@ -1,0 +1,52 @@
+.messageList {
+  border: solid 1px #ddd;
+  padding: 30px;
+  height: 75%;
+  width: 100%;
+  margin: 40px auto 0 auto;
+  background-color: rgb(255, 255, 255);
+  overflow: hidden;
+}
+
+.messageList > div {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  overflow: auto;
+}
+
+.textInput {
+  border: solid 1px #333;
+  padding: 10px;
+  margin: 10px;
+  width: 100%;
+  font-size: 16px;
+}
+
+.messageItem {
+  font-size: 18px;
+  color: #333;
+  border-radius: 8px;
+  background: rgba(191, 241, 216, 0.329);
+  padding: 12px 18px;
+  border: 0.5px solid rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 1px rgba(0, 0, 0, 0.08);
+  max-width: 70%;
+  display: inline-block;
+  text-align: left;
+  margin-bottom: 6px;
+  margin-right: auto;
+}
+
+.messageItem.right {
+  background: rgba(241, 224, 191, 0.329);
+  margin-right: 10px;
+  margin-left: auto;
+}
+.messageItem.date {
+  font-size: 8px;
+}
+.right {
+  margin-right: 10px;
+  margin-left: auto;
+}

@@ -8,9 +8,9 @@ function Profile() {
       <Heading textAlign="center">Profile</Heading>
       <Heading fontSize="2xl" textAlign="center">
         Id: {user.id}
-        <Heading fontSize="2xl" textAlign="center">
-          Role: {isAdmin ? "Admin" : "User"}
-        </Heading>
+      </Heading>
+      <Heading fontSize="2xl" textAlign="center">
+        Role: {isAdmin ? "Admin" : "User"}
       </Heading>
       <Heading fontSize="2xl" textAlign="center">
         Apartmetnt Id: {user.apartmentId}{" "}

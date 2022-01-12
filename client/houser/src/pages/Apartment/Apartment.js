@@ -24,6 +24,7 @@ function Apartment() {
   const { user, isAdmin } = useAuth();
   const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
+
   const { isLoading, isError, data, error } = useQuery(
     ["apartments", params.pageSize, params.pageNumber],
     () => fetchApartments(params.pageSize, params.pageNumber)
