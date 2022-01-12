@@ -1,28 +1,29 @@
 import React from "react";
 import { fetchUserDetail, updateUser } from "../../api";
-
 import {
   Heading,
   Box,
+  Container,
   FormControl,
   FormLabel,
   Input,
   Button,
-  Checkbox,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../helpers/LoadingSpinner";
+import { alertError, alertSuccess } from "../../helpers/messageAlert";
 function UserDetail() {
   const { userId } = useParams();
   const { user, isAdmin } = useAuth();
+  const queryClient = useQueryClient();
   const { isLoading, error, data } = useQuery(["user-detail", userId], () =>
     fetchUserDetail(userId)
   );
 
-  if (!isAdmin && user.id != userId)
+  if (!isAdmin && user.id !== userId)
     return <Heading>User is not admin!</Heading>;
 
   if (isLoading) {
@@ -36,15 +37,17 @@ function UserDetail() {
   const handleSubmit = async (values, bag) => {
     try {
       console.log("Update submitted!");
-      // const { res } = await updateApartment(values, apartmentId);
-      // console.log(res);
-      // queryClient.invalidateQueries("apartment-detail");
+      const res = await updateUser(values, userId);
+      res.isSuccess
+        ? alertSuccess("Updated!")
+        : alertError(res.exceptionMessage);
+      queryClient.invalidateQueries("user-detail");
     } catch (errors) {
       console.log(errors);
     }
   };
   return (
-    <div>
+    <Container maxW="container.lg">
       <Heading textAlign="center">User Edit</Heading>
       <Formik
         initialValues={{
@@ -69,6 +72,7 @@ function UserDetail() {
                       name="id"
                       value={values.id}
                       disabled={isSubmitting}
+                      isReadOnly={true}
                       onBlur={handleBlur}
                       onChange={handleChange}
                     ></Input>
@@ -138,11 +142,12 @@ function UserDetail() {
                   </FormControl>
                   <Button
                     mt={5}
+                    size="lg"
                     width="full"
                     type="submit"
                     isLoading={isSubmitting}
                   >
-                    Update
+                    Update User
                   </Button>
                 </form>
               </Box>
@@ -150,7 +155,7 @@ function UserDetail() {
           </>
         )}
       </Formik>
-    </div>
+    </Container>
   );
 }
 

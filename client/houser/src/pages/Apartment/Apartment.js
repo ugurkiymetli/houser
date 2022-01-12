@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { fetchApartments, deleteApartment } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
-  Spinner,
   Button,
   Box,
   Flex,
@@ -15,14 +14,17 @@ import {
   Tbody,
   TableCaption,
 } from "@chakra-ui/react";
+import { alertSuccess, alertError } from "../../helpers/messageAlert";
 import { Link } from "react-router-dom";
-import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
+import { FiEdit } from "react-icons/fi";
+import { AiFillDelete } from "react-icons/ai";
 
 import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../helpers/LoadingSpinner";
 function Apartment() {
-  const { user, isAdmin } = useAuth();
-  const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
+  const { isAdmin } = useAuth();
+
+  const [params] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
 
   const { isLoading, isError, data, error } = useQuery(
@@ -44,12 +46,12 @@ function Apartment() {
       </div>
     );
   }
-  if (!data.isSuccess) console.log(data.exceptionMessage);
+  if (!data.isSuccess) alertError(data.exceptionMessage);
 
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading>Apartments</Heading>
+        <Heading marginLeft={"50%"}>Apartments</Heading>
         {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
@@ -63,13 +65,11 @@ function Apartment() {
           </Stack>
         )}
       </Flex>
-      {/* CHAKRA TABLE */}
-
-      <Table mt={5} variant="simple">
+      <Table mt={5} variant="striped" colorScheme="black">
         {!data.isSuccess && (
           <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
         )}
-        <TableCaption> Users - Total ({data.totalCount})</TableCaption>
+        <TableCaption> Apartments - Total ({data.totalCount})</TableCaption>
         <Thead>
           <Tr>
             <Th textAlign="center">ID</Th>
@@ -101,7 +101,7 @@ function Apartment() {
                 <Th textAlign="center">
                   <Link to={`./${item.id}`}>
                     <Button size={"sm"} colorScheme={"blue"}>
-                      <EditIcon />
+                      <FiEdit />
                     </Button>
                   </Link>
                 </Th>
@@ -113,18 +113,16 @@ function Apartment() {
                     onClick={() => {
                       deleteMutation.mutate(item.id, {
                         onSuccess: (data) => {
-                          //   console.log(data);
                           !data.isSuccess
-                            ? alert(data.exceptionMessage)
-                            : alert(`Apartment with id:${item.id} deleted!`);
-                          // console.log(
-                          //     `Apartment with id:${item.id} deleted!`
-                          //   );
+                            ? alertError(data.exceptionMessage)
+                            : alertSuccess(
+                                `Apartment with id:${item.id} deleted!`
+                              );
                         },
                       });
                     }}
                   >
-                    <DeleteIcon />
+                    <AiFillDelete />
                   </Button>
                 </Th>
               </Tr>

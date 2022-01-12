@@ -12,22 +12,28 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
-
 import { fetchLogin } from "../../api";
 import { useAuth } from "../../context/AuthContext";
-import loginValidationSchema from "./validations";
-
+import { loginValidation } from "../../validations/validations";
+import { alertError, alertSuccess } from "../../helpers/messageAlert";
 function Login() {
   const { login } = useAuth();
   const handleSubmit = async (values, bag) => {
     try {
-      console.log(values);
+      // console.log(values);
       const loginResponse = await fetchLogin({
         email: values.email,
         password: values.password,
       });
+      // console.log({ loginResponse });
+      if (!loginResponse.isSuccess) {
+        alertError(loginResponse.exceptionMessage);
+        values.email = "";
+        values.password = "";
+        return;
+      }
       login(loginResponse);
-      console.log(loginResponse);
+      alertSuccess("Logged in!");
     } catch (error) {
       bag.setErrors({ general: error.response.data.message });
     }
@@ -35,8 +41,8 @@ function Login() {
   return (
     <Formik
       initialValues={{ email: "", password: "" }}
-      validationSchema={loginValidationSchema}
       onSubmit={handleSubmit}
+      validationSchema={loginValidation}
     >
       {({
         handleBlur,
@@ -105,8 +111,9 @@ function Login() {
                   </FormControl>
 
                   <Button
-                    isDisabled={touched.password && errors.password}
+                    isDisabled={errors.email || errors.password}
                     mt="4"
+                    size="lg"
                     width="full"
                     type="submit"
                   >
@@ -128,52 +135,6 @@ function Login() {
         </div>
       )}
     </Formik>
-    // <div>
-    //   <Flex align="center" justifyContent="center" width="full">
-    //     <Box pt={10}>
-    //       <Box textAlign="center">
-    //         <Heading>Log In</Heading>
-    //         ugurkiymetli@mail.com abc123
-    //       </Box>
-    //       <Box my={5}>
-    //         {formik.errors.general && (
-    //           <Alert status="error">{formik.errors.general}</Alert>
-    //         )}
-    //       </Box>
-    //       <Box>
-    //         <form onSubmit={formik.handleSubmit}>
-    //           <FormControl>
-    //             <FormLabel>E-mail</FormLabel>
-    //             <Input
-    //               name="email"
-    //               onChange={formik.handleChange}
-    //               onBlur={formik.handleBlur}
-    //               value={formik.values.email}
-    //               isInvalid={formik.touched.email && formik.errors.email}
-    //             ></Input>
-    //           </FormControl>
-
-    //           <FormControl mt="4">
-    //             <FormLabel>Password</FormLabel>
-
-    //             <Input
-    //               name="password"
-    //               type="password"
-    //               onChange={formik.handleChange}
-    //               onBlur={formik.handleBlur}
-    //               value={formik.values.password}
-    //               isInvalid={formik.touched.password && formik.errors.password}
-    //             ></Input>
-    //           </FormControl>
-
-    //           <Button mt="4" width="full" type="submit">
-    //             Log In
-    //           </Button>
-    //         </form>
-    //       </Box>
-    //     </Box>
-    //   </Flex>
-    // </div>
   );
 }
 

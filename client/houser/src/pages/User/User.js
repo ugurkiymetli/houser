@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { deleteUser, fetchUsers } from "../../api";
-import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   Button,
@@ -14,17 +13,15 @@ import {
   Th,
   Tbody,
   TableCaption,
-  // Link,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { FiEdit } from "react-icons/fi";
+import { AiFillDelete } from "react-icons/ai";
 import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../helpers/LoadingSpinner";
 function User() {
-  const { user, isAdmin } = useAuth();
-
-  let navigate = useNavigate();
-  const [params, setParams] = useState({ pageSize: 100, pageNumber: 1 });
+  const { isAdmin } = useAuth();
+  const [params] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
     ["users", params.pageSize, params.pageNumber],
@@ -52,7 +49,7 @@ function User() {
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading>Users</Heading>
+        <Heading marginLeft={"50%"}>Users</Heading>
         {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
@@ -68,7 +65,7 @@ function User() {
       </Flex>
       {/* CHAKRA TABLE */}
 
-      <Table mt={5} variant="simple" colorScheme="black">
+      <Table mt={5} variant="striped" colorScheme="black">
         {!data.isSuccess && (
           <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
         )}
@@ -110,7 +107,7 @@ function User() {
                 <Th textAlign="center">
                   <Link to={`./${item.id}`}>
                     <Button size={"sm"} colorScheme={"blue"}>
-                      <EditIcon />
+                      <FiEdit />
                     </Button>
                   </Link>
                 </Th>
@@ -118,6 +115,7 @@ function User() {
                   <Button
                     size={"sm"}
                     colorScheme={"red"}
+                    disabled={deleteMutation.isLoading ? true : false}
                     onClick={() => {
                       deleteMutation.mutate(item.id, {
                         onSuccess: (data) => {
@@ -129,7 +127,7 @@ function User() {
                       });
                     }}
                   >
-                    <DeleteIcon />
+                    <AiFillDelete />
                   </Button>
                 </Th>
               </Tr>

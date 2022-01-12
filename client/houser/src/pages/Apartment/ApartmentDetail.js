@@ -1,22 +1,23 @@
 import React from "react";
 import { fetchApartmentDetail, updateApartment } from "../../api";
+import { useAuth } from "../../context/AuthContext";
 import {
-  Flex,
-  Spinner,
   Heading,
   Box,
+  Container,
   FormControl,
   FormLabel,
   Input,
+  NumberInput,
+  NumberInputField,
   Button,
   Checkbox,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
-import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
-
+import { insertApartmentValidations } from "../../validations/validations";
+import LoadingSpinner from "../../helpers/LoadingSpinner";
 function ApartmentDetail() {
   const { user, isAdmin } = useAuth();
 
@@ -27,13 +28,12 @@ function ApartmentDetail() {
     () => fetchApartmentDetail(apartmentId)
   );
 
-  if (!isAdmin && user.apartmentId != apartmentId)
+  if (!isAdmin && user.apartmentId !== apartmentId)
     return <Heading>User is not admin!</Heading>;
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
-
   if (error) {
     return <div>Error {error.message}</div>;
   }
@@ -41,15 +41,16 @@ function ApartmentDetail() {
   const handleSubmit = async (values, bag) => {
     try {
       console.log("Update submitted!");
-      // const { res } = await updateApartment(values, apartmentId);
-      // console.log(res);
-      // queryClient.invalidateQueries("apartment-detail");
+      const res = await updateApartment(values, apartmentId);
+      console.log(res);
+      queryClient.invalidateQueries("apartment-detail");
     } catch (errors) {
+      alert(errors);
       console.log(errors);
     }
   };
   return (
-    <div>
+    <Container maxW="container.lg">
       <Heading textAlign="center">Apartment Edit</Heading>
       <Formik
         initialValues={{
@@ -61,9 +62,18 @@ function ApartmentDetail() {
           type: data.entity.type,
           isEmpty: data.entity.isEmpty,
         }}
+        validationSchema={insertApartmentValidations}
         onSubmit={handleSubmit}
       >
-        {({ handleBlur, handleSubmit, handleChange, values, isSubmitting }) => (
+        {({
+          handleBlur,
+          handleSubmit,
+          handleChange,
+          values,
+          touched,
+          errors,
+          isSubmitting,
+        }) => (
           <>
             <Box m={5}>
               <Box my="5" textAlign="left">
@@ -73,22 +83,32 @@ function ApartmentDetail() {
                     <Input
                       name="id"
                       value={values.id}
+                      isReadOnly={true}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
                     ></Input>
                   </FormControl>
-                  <FormControl mt={5}>
+                  <FormControl mt={5} isRequired>
                     <FormLabel>Resident ID</FormLabel>
-                    <Input
+
+                    <NumberInput
                       name="residentId"
                       value={values.residentId}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
-                      onChange={handleChange}
-                    ></Input>
+                      isInvalid={touched.residentId && errors.residentId}
+                      min={0}
+                      max={99}
+                    >
+                      <NumberInputField onChange={handleChange} />
+                    </NumberInput>
+
+                    {touched.residentId && errors.residentId && (
+                      <span>{errors.residentId}</span>
+                    )}
                   </FormControl>
-                  <FormControl mt={5}>
+                  <FormControl mt={5} isRequired>
                     <FormLabel>Block</FormLabel>
                     <Input
                       name="block"
@@ -96,30 +116,47 @@ function ApartmentDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      isInvalid={touched.block && errors.block}
                     ></Input>
+                    {touched.block && errors.block && (
+                      <span>{errors.block}</span>
+                    )}
                   </FormControl>
-                  <FormControl mt={5}>
+                  <FormControl mt={5} isRequired>
                     <FormLabel>Floor</FormLabel>
-                    <Input
+                    <NumberInput
                       name="floor"
                       value={values.floor}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
-                      onChange={handleChange}
-                    ></Input>
-                    <FormControl mt={5}>
+                      isInvalid={touched.floor && errors.floor}
+                      min={0}
+                    >
+                      <NumberInputField onChange={handleChange} />
+                    </NumberInput>
+
+                    {touched.floor && errors.floor && (
+                      <span>{errors.floor}</span>
+                    )}
+                    <FormControl mt={5} isRequired>
                       <FormLabel>Number</FormLabel>
-                      <Input
+                      <NumberInput
                         name="number"
                         value={values.number}
                         disabled={isSubmitting}
                         onBlur={handleBlur}
-                        onChange={handleChange}
-                      ></Input>
+                        isInvalid={touched.number && errors.number}
+                        min={0}
+                      >
+                        <NumberInputField onChange={handleChange} />
+                      </NumberInput>
+                      {touched.number && errors.number && (
+                        <span>{errors.number}</span>
+                      )}
                     </FormControl>
                   </FormControl>
 
-                  <FormControl mt={5}>
+                  <FormControl mt={5} isRequired>
                     <FormLabel>Type</FormLabel>
                     <FormControl>
                       <Input
@@ -128,26 +165,39 @@ function ApartmentDetail() {
                         disabled={isSubmitting}
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        isInvalid={touched.type && errors.type}
                       ></Input>
+                      {touched.type && errors.type && (
+                        <span>{errors.type}</span>
+                      )}
                     </FormControl>
                     <FormControl mt={5}>
                       <FormLabel>Is Empty?</FormLabel>
                       <Checkbox
+                        name="isEmpty"
                         colorScheme="green"
                         size="lg"
-                        isChecked={values.isEmpty}
+                        defaultChecked={!values.isEmpty}
                         onChange={handleChange}
                       >
-                        Occupation
+                        Occupied
                       </Checkbox>
                     </FormControl>
                     <Button
                       mt={5}
+                      size="lg"
                       width="full"
                       type="submit"
                       isLoading={isSubmitting}
+                      isDisabled={
+                        errors.type ||
+                        errors.residentId ||
+                        errors.number ||
+                        errors.floor ||
+                        errors.block
+                      }
                     >
-                      Update
+                      Update Apartment
                     </Button>
                   </FormControl>
                 </form>
@@ -156,7 +206,7 @@ function ApartmentDetail() {
           </>
         )}
       </Formik>
-    </div>
+    </Container>
   );
 }
 
