@@ -21,13 +21,12 @@ const AuthProvider = ({ children }) => {
     localStorage.setItem("token", data.entity.token);
     localStorage.setItem("user", JSON.stringify(data.entity));
   };
-  const logout = async (callback) => {
+  const logout = async () => {
     setIsLoggedIn(false);
     setIsAdmin(false);
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    callback();
   };
   const values = { isAdmin, isLoggedIn, login, logout, user };
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

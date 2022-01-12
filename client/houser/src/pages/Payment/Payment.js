@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchPayments } from "../../api";
+import { deletePayment, fetchPayments, fetchPaymentsAdmin } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
   Button,
@@ -15,19 +15,25 @@ import {
   TableCaption,
 } from "@chakra-ui/react";
 
+import { FiEdit } from "react-icons/fi";
+import { AiFillDelete } from "react-icons/ai";
+import { MdPayment } from "react-icons/md";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { useAuth } from "../../context/AuthContext";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import { alertError, alertSuccess } from "../../helpers/messageAlert";
+import LoadingSpinner from "../../helpers/LoadingSpinner";
 function Payments() {
   const { user, isAdmin } = useAuth();
-  // console.log("payments", user.id);
   const queryClient = useQueryClient();
   const { isLoading, isError, data, error } = useQuery(
     ["payments", user.id],
-    () => fetchPayments(user.id)
+    () => (!isAdmin ? fetchPayments(user.id) : fetchPaymentsAdmin())
   );
 
+  const deleteMutation = useMutation(deletePayment, {
+    onSuccess: () => queryClient.invalidateQueries("payments"),
+  });
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -39,7 +45,7 @@ function Payments() {
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading>Payments</Heading>
+        <Heading marginLeft={"50%"}>Payments</Heading>
         {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
@@ -55,7 +61,7 @@ function Payments() {
       </Flex>
       {/* CHAKRA TABLE */}
 
-      <Table variant="striped" colorScheme="gray" mt={5}>
+      <Table mt={5} variant="striped" colorScheme="black">
         {!data.isSuccess && (
           <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
         )}
@@ -73,7 +79,9 @@ function Payments() {
             <Th textAlign="center">Due Date</Th>
             <Th textAlign="center">Payment Date</Th>
             <Th textAlign="center">Insert Date</Th>
-            <Th textAlign="center">Pay</Th>
+            <Th textAlign="center"> </Th>
+            <Th textAlign="center">Edit</Th>
+            <Th textAlign="center">Delete</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -83,23 +91,54 @@ function Payments() {
                 <Th textAlign="center">{item.id}</Th>
                 <Th textAlign="center">{item.amount} ₺</Th>
                 <Th textAlign="center">{item.type}</Th>
-                <Th textAlign="center">
-                  {item.isPayed ? "Payed" : "Not Payed"}
-                </Th>
+                <Th textAlign="center">{item.isPayed ? "✓" : "x"}</Th>
                 <Th textAlign="center">{item.payerId}</Th>
                 <Th textAlign="center">
-                  {moment(item.paymentDueDate).format("D:M:YYYY, h:m:s")}
+                  {moment(item.paymentDueDate).format("DD.MM.YYYY, hh:mm:ss")}
                 </Th>
                 <Th textAlign="center">
                   {item.paymentDate == null
                     ? "-"
-                    : moment(item.paymentDate).format("D:M:YYYY, h:m:s")}
+                    : moment(item.paymentDate).format("DD.MM.YYYY, hh:mm:ss")}
                 </Th>
                 <Th textAlign="center">
-                  {moment(item.idatetime).format("D:M:YYYY, h:m:s")}
+                  {moment(item.idatetime).format("DD.MM.YYYY, hh:mm:ss")}
                 </Th>
                 <Th>
-                  <Button colorScheme="green">Pay</Button>
+                  {!item.isPayed && item.payerId === user.id ? (
+                    <Link to={`./${item.id}`}>
+                      <Button colorScheme="green">
+                        <MdPayment />
+                      </Button>
+                    </Link>
+                  ) : null}
+                </Th>
+                <Th textAlign="center">
+                  <Link to={`./${item.id}`}>
+                    <Button size={"sm"} colorScheme={"blue"}>
+                      <FiEdit />
+                    </Button>
+                  </Link>
+                </Th>
+                <Th textAlign="center">
+                  <Button
+                    size={"sm"}
+                    colorScheme={"red"}
+                    disabled={deleteMutation.isLoading ? true : false}
+                    onClick={() => {
+                      deleteMutation.mutate(item.id, {
+                        onSuccess: (data) => {
+                          !data.isSuccess
+                            ? alertError(data.exceptionMessage)
+                            : alertSuccess(
+                                `Payment with id:${item.id} deleted!`
+                              );
+                        },
+                      });
+                    }}
+                  >
+                    <AiFillDelete />
+                  </Button>
                 </Th>
               </Tr>
             ))}

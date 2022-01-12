@@ -4,7 +4,34 @@ axios.defaults.headers.common["Authorization"] = localStorage.getItem("token");
 
 export const fetchPayments = async (payerId) => {
   const { data } = await axios.get(
-    `${process.env.REACT_APP_BASE_ENDPOINT}/payment?payerId=${payerId}  `
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment?payerId=${payerId}`
+  );
+  return data;
+};
+export const fetchPaymentsAdmin = async () => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment`
+  );
+  return data;
+};
+
+export const deletePayment = async (id) => {
+  const { data } = await axios.delete(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment/${id}`
+  );
+  return data;
+};
+export const fetchPaymentDetail = async (id) => {
+  const { data } = await axios.get(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment/${id}`
+  );
+  return data;
+};
+
+export const updatePayment = async (input, id) => {
+  const { data } = await axios.put(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment/${id}`,
+    input
   );
   return data;
 };
