@@ -13,13 +13,11 @@ import {
   Th,
   Tbody,
   TableCaption,
-  Tooltip,
 } from "@chakra-ui/react";
 
 import { FiEdit } from "react-icons/fi";
 import { AiFillDelete } from "react-icons/ai";
 import { MdPayment } from "react-icons/md";
-import { GoPlus } from "react-icons/go";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { useAuth } from "../../context/AuthContext";
@@ -55,13 +53,9 @@ function Payments() {
             direction={"row"}
             spacing={1}
           >
-            <Link to="./new">
-              <Tooltip label="Add Payment!" closeDelay={30} placement="left">
-                <Button size={"sm"} direction={"row"} colorScheme="green">
-                  <GoPlus />
-                </Button>
-              </Tooltip>
-            </Link>
+            <Button direction={"row"} colorScheme="green">
+              Add Payment
+            </Button>
           </Stack>
         )}
       </Flex>
@@ -85,7 +79,7 @@ function Payments() {
             <Th textAlign="center">Due Date</Th>
             <Th textAlign="center">Payment Date</Th>
             <Th textAlign="center">Insert Date</Th>
-            <Th textAlign="center">Pay</Th>
+            <Th textAlign="center"> </Th>
             <Th textAlign="center">Edit</Th>
             <Th textAlign="center">Delete</Th>
           </Tr>
@@ -113,48 +107,38 @@ function Payments() {
                 <Th>
                   {!item.isPayed && item.payerId === user.id ? (
                     <Link to={`./${item.id}`}>
-                      <Tooltip
-                        label="Pay with credit card."
-                        size="sm"
-                        openDelay={50}
-                      >
-                        <Button size={"sm"} colorScheme="green">
-                          <MdPayment />
-                        </Button>
-                      </Tooltip>
+                      <Button colorScheme="green">
+                        <MdPayment />
+                      </Button>
                     </Link>
                   ) : null}
                 </Th>
                 <Th textAlign="center">
                   <Link to={`./${item.id}`}>
-                    <Tooltip label="Edit payment." size="sm" openDelay={50}>
-                      <Button size={"sm"} colorScheme={"blue"}>
-                        <FiEdit />
-                      </Button>
-                    </Tooltip>
+                    <Button size={"sm"} colorScheme={"blue"}>
+                      <FiEdit />
+                    </Button>
                   </Link>
                 </Th>
                 <Th textAlign="center">
-                  <Tooltip label="Delete payment." size="sm" openDelay={50}>
-                    <Button
-                      size={"sm"}
-                      colorScheme={"red"}
-                      disabled={deleteMutation.isLoading ? true : false}
-                      onClick={() => {
-                        deleteMutation.mutate(item.id, {
-                          onSuccess: (data) => {
-                            !data.isSuccess
-                              ? alertError(data.exceptionMessage)
-                              : alertSuccess(
-                                  `Payment with id:${item.id} deleted!`
-                                );
-                          },
-                        });
-                      }}
-                    >
-                      <AiFillDelete />
-                    </Button>
-                  </Tooltip>
+                  <Button
+                    size={"sm"}
+                    colorScheme={"red"}
+                    disabled={deleteMutation.isLoading ? true : false}
+                    onClick={() => {
+                      deleteMutation.mutate(item.id, {
+                        onSuccess: (data) => {
+                          !data.isSuccess
+                            ? alertError(data.exceptionMessage)
+                            : alertSuccess(
+                                `Payment with id:${item.id} deleted!`
+                              );
+                        },
+                      });
+                    }}
+                  >
+                    <AiFillDelete />
+                  </Button>
                 </Th>
               </Tr>
             ))}

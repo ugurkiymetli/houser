@@ -18,7 +18,7 @@
 .textInput {
   border: solid 1px #333;
   padding: 10px;
-  /* margin: 10px; */
+  margin: 10px;
   width: 100%;
   font-size: 16px;
 }

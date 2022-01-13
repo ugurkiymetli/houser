@@ -1,6 +1,5 @@
 import React from "react";
 import { fetchApartmentDetail, updateApartment } from "../../api";
-import { alertError, alertSuccess } from "../../helpers/messageAlert";
 import { useAuth } from "../../context/AuthContext";
 import {
   Heading,
@@ -13,16 +12,15 @@ import {
   NumberInputField,
   Button,
   Checkbox,
-  Spinner,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
-import { updateApartmentValidations } from "../../validations/validations";
+import { insertApartmentValidations } from "../../validations/validations";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
-import { useNavigate } from "react-router-dom";
 function ApartmentDetail() {
   const { user, isAdmin } = useAuth();
+
   const queryClient = useQueryClient();
   const { apartmentId } = useParams();
   const { isLoading, error, data } = useQuery(
@@ -30,7 +28,6 @@ function ApartmentDetail() {
     () => fetchApartmentDetail(apartmentId)
   );
 
-  let navigate = useNavigate();
   if (!isAdmin && user.apartmentId !== apartmentId)
     return <Heading>User is not admin!</Heading>;
 
@@ -42,25 +39,14 @@ function ApartmentDetail() {
   }
   if (!data.isSuccess) console.log(data.exceptionMessage);
   const handleSubmit = async (values, bag) => {
-    console.log({ values });
-    values.residentId = values.residentId == "" ? null : values.residentId;
-    if (
-      (values.isEmpty && values.residentId == null) ||
-      (!values.isEmpty && values.residentId !== null)
-    ) {
-      alertError("Apartment cant be empty and have resident!");
-      return;
-    }
     try {
+      console.log("Update submitted!");
       const res = await updateApartment(values, apartmentId);
-      if (res.isSuccess) {
-        alertSuccess("Updated!");
-        queryClient.refetchQueries("apartments");
-        queryClient.invalidateQueries("apartment-detail");
-        navigate("/apartments");
-      } else alertError(res.exceptionMessage);
-    } catch (error) {
-      alertError(error);
+      console.log(res);
+      queryClient.invalidateQueries("apartment-detail");
+    } catch (errors) {
+      alert(errors);
+      console.log(errors);
     }
   };
   return (
@@ -76,7 +62,7 @@ function ApartmentDetail() {
           type: data.entity.type,
           isEmpty: data.entity.isEmpty,
         }}
-        validationSchema={updateApartmentValidations}
+        validationSchema={insertApartmentValidations}
         onSubmit={handleSubmit}
       >
         {({
@@ -103,17 +89,10 @@ function ApartmentDetail() {
                       onChange={handleChange}
                     ></Input>
                   </FormControl>
-                  <FormControl mt={5}>
+                  <FormControl mt={5} isRequired>
                     <FormLabel>Resident ID</FormLabel>
-                    <Input
-                      name="residentId"
-                      value={values.residentId}
-                      onChange={handleChange}
-                      disabled={isSubmitting}
-                      onBlur={handleBlur}
-                      isInvalid={touched.residentId && errors.residentId}
-                    ></Input>
-                    {/* <NumberInput
+
+                    <NumberInput
                       name="residentId"
                       value={values.residentId}
                       disabled={isSubmitting}
@@ -123,7 +102,7 @@ function ApartmentDetail() {
                       max={99}
                     >
                       <NumberInputField onChange={handleChange} />
-                    </NumberInput> */}
+                    </NumberInput>
 
                     {touched.residentId && errors.residentId && (
                       <span>{errors.residentId}</span>
@@ -193,26 +172,23 @@ function ApartmentDetail() {
                       )}
                     </FormControl>
                     <FormControl mt={5}>
-                      <FormLabel>
-                        {values.isEmpty ? "Empty" : "Occupied"}
-                      </FormLabel>
+                      <FormLabel>Is Empty?</FormLabel>
                       <Checkbox
-                        variant="solid"
-                        border={"1px solid #38a169"}
-                        borderRadius={"5px"}
                         name="isEmpty"
                         colorScheme="green"
                         size="lg"
-                        defaultChecked={values.isEmpty}
+                        defaultChecked={!values.isEmpty}
                         onChange={handleChange}
-                      ></Checkbox>
+                      >
+                        Occupied
+                      </Checkbox>
                     </FormControl>
                     <Button
                       mt={5}
                       size="lg"
                       width="full"
                       type="submit"
-                      // isLoading={isSubmitting}
+                      isLoading={isSubmitting}
                       isDisabled={
                         errors.type ||
                         errors.residentId ||
@@ -221,11 +197,7 @@ function ApartmentDetail() {
                         errors.block
                       }
                     >
-                      {isSubmitting ? (
-                        <Spinner color="red" />
-                      ) : (
-                        "Update Apartment"
-                      )}
+                      Update Apartment
                     </Button>
                   </FormControl>
                 </form>
