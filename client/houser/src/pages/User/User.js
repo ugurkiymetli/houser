@@ -21,6 +21,7 @@ import { AiFillDelete } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
+import { alertError, alertSuccess } from "../../helpers/messageAlert";
 function User() {
   const { isAdmin } = useAuth();
   const [params] = useState({ pageSize: 100, pageNumber: 1 });
@@ -30,7 +31,7 @@ function User() {
     () => fetchUsers(params.pageSize, params.pageNumber)
   );
 
-  const deleteMutation = useMutation(deleteUser, {
+  const deleteUserMutation = useMutation(deleteUser, {
     onSuccess: () => queryClient.invalidateQueries("users"),
   });
   if (!isAdmin) {
@@ -95,7 +96,9 @@ function User() {
               <Tr key={item.id}>
                 <Th textAlign="center">{item.id}</Th>
                 <Th textAlign="center">
-                  {item.apartmentId == null ? "-" : item.apartmentId}
+                  {item.apartmentId === null || item.apartmentId === 0
+                    ? "-"
+                    : item.apartmentId}
                 </Th>
                 <Th textTransform="capitalize" textAlign="center">
                   {item.name}
@@ -108,7 +111,9 @@ function User() {
                 </Th>
                 <Th textAlign="center">{item.identityNum}</Th>
                 <Th textAlign="center">
-                  {item.carPlateNum == null ? "-" : item.carPlateNum}
+                  {item.carPlateNum === null || item.carPlateNum === ""
+                    ? "-"
+                    : item.carPlateNum}
                 </Th>
                 <Th textAlign="center">
                   <Link to={`./${item.id}`}>
@@ -124,14 +129,16 @@ function User() {
                     <Button
                       size={"sm"}
                       colorScheme={"red"}
-                      disabled={deleteMutation.isLoading ? true : false}
+                      disabled={deleteUserMutation.isLoading ? true : false}
                       onClick={() => {
-                        deleteMutation.mutate(item.id, {
+                        deleteUserMutation.mutate(item.id, {
                           onSuccess: (data) => {
                             //   console.log(data);
                             !data.isSuccess
-                              ? alert(data.exceptionMessage)
-                              : alert(`User with id:${item.id} deleted!`);
+                              ? alertError(data.exceptionMessage)
+                              : alertSuccess(
+                                  `User with id:${item.id} deleted!`
+                                );
                           },
                         });
                       }}

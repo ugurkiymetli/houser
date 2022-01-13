@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchUserDetail, updateUser } from "../../api";
+import { fetchApartments, fetchUserDetail, updateUser } from "../../api";
 import {
   Heading,
   Box,
@@ -9,15 +9,22 @@ import {
   Input,
   Button,
   Spinner,
+  Tooltip,
+  Select,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
-import { alertError, alertSuccess } from "../../helpers/messageAlert";
+import {
+  alertError,
+  alertInfo,
+  alertSuccess,
+} from "../../helpers/messageAlert";
 import { insertUserValidations } from "../../validations/validations";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { GoPlus } from "react-icons/go";
 function UserDetail() {
   const { userId } = useParams();
   const { user, isAdmin } = useAuth();
@@ -25,8 +32,19 @@ function UserDetail() {
   const { isLoading, error, data } = useQuery(["user-detail", userId], () =>
     fetchUserDetail(userId)
   );
+  //fetchUserDetail returns apartmentId = 0 if it is null so we set it null instead of 0
+  data &&
+    (data.entity.apartmentId =
+      data.entity.apartmentId === 0 ? null : data.entity.apartmentId);
+  data && console.log("data:", data);
+  //fetchApartments for apartments selectbox
+  const { data: apartments, isLoading: apartmentsLoading } = useQuery(
+    ["apartmentId-selectbox"],
+    () => fetchApartments(100, 1)
+  );
 
   let navigate = useNavigate();
+  //if user is not admin we do not render page
   if (!isAdmin && user.id !== userId)
     return <Heading>User is not admin!</Heading>;
 
@@ -38,22 +56,31 @@ function UserDetail() {
     return <div>Error {error.message}</div>;
   }
   if (!data.isSuccess) console.log(data.exceptionMessage);
+
   const handleSubmit = async (values, bag) => {
+    // console.log("user-detail-values:", values);
+    // values.apartmentId =
+    //   values.apartmentId === "" || values.apartmentId === 0
+    //     ? null
+    //     : values.apartmentId;
+
+    //convert carplatenum empty string to null and toUpperCase here
+    values.carPlateNum =
+      values.carPlateNum === "" ? null : values.carPlateNum.toUpperCase();
+
     try {
       console.log("Update submitted!");
       const res = await updateUser(values, userId);
       if (res.isSuccess) {
         alertSuccess("Updated!");
+        //refetch and invalidate queries here after updating
         queryClient.refetchQueries("users");
         queryClient.invalidateQueries("user-detail");
+        queryClient.refetchQueries("apartments");
+        //redirect to users page
         navigate("/users");
       } else alertError(res.exceptionMessage);
-      // res.isSuccess
-      //   ? alertSuccess("Updated!")
-      //   : alertError(res.exceptionMessage);
-      // queryClient.invalidateQueries("user-detail");
     } catch (errors) {
-      alertError(errors);
       console.log(errors);
     }
   };
@@ -61,6 +88,7 @@ function UserDetail() {
     <Container maxW="container.lg">
       <Heading textAlign="center">User Edit</Heading>
       <Formik
+        //initial form values from fetchUserDetail
         initialValues={{
           id: data.entity.id,
           apartmentId: data.entity.apartmentId,
@@ -99,15 +127,51 @@ function UserDetail() {
                     ></Input>
                   </FormControl>
                   <FormControl mt={5}>
-                    <FormLabel>Apartment ID</FormLabel>
-                    <Input
+                    <FormLabel>
+                      Apartment{" "}
+                      <Link to="/apartments/new">
+                        <Tooltip
+                          label="Add Apartment!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
+
+                    <Select
                       name="apartmentId"
                       value={values.apartmentId}
                       disabled={isSubmitting}
+                      isLoading={apartmentsLoading}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.apartmentId && errors.apartmentId}
-                    ></Input>
+                    >
+                      <option value={""}>Empty</option>
+                      //if user has apartment we render its apartment in
+                      selectbox option
+                      {values.apartmentId !== null && (
+                        // && values.apartmentId !== 0
+                        <option value={values.apartmentId}>
+                          {values.apartmentId}
+                        </option>
+                      )}
+                      //we render empty apartments here for user to choose
+                      {apartments &&
+                        apartments.isSuccess &&
+                        apartments.list
+                          .filter((item) => item.isEmpty)
+                          .map((item, key) => (
+                            <option key={key} value={item.id}>
+                              Block : {item.block} / Floor : {item.floor} /
+                              Number : {item.number}
+                            </option>
+                          ))}
+                    </Select>
                     {touched.apartmentId && errors.apartmentId && (
                       <span>{errors.apartmentId}</span>
                     )}
@@ -132,10 +196,10 @@ function UserDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      isInvalid={touched.apartmentId && errors.apartmentId}
+                      isInvalid={touched.email && errors.email}
                     ></Input>
-                    {touched.apartmentId && errors.apartmentId && (
-                      <span>{errors.apartmentId}</span>
+                    {touched.email && errors.email && (
+                      <span>{errors.email}</span>
                     )}
                   </FormControl>
 
@@ -174,6 +238,7 @@ function UserDetail() {
                     <Input
                       name="carPlateNum"
                       value={values.carPlateNum}
+                      textTransform={"uppercase"}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -189,14 +254,15 @@ function UserDetail() {
                     width="full"
                     type="submit"
                     isDisabled={
-                      errors.type ||
-                      errors.residentId ||
-                      errors.number ||
-                      errors.floor ||
-                      errors.block
+                      errors.apartmentId ||
+                      errors.name ||
+                      errors.email ||
+                      errors.phoneNum ||
+                      errors.identityNum ||
+                      errors.carPlateNum
                     }
                   >
-                    {isSubmitting ? <Spinner color="red" /> : "Update User"}
+                    {isSubmitting ? <Spinner color="red.500" /> : "Update User"}
                   </Button>
                 </form>
               </Box>

@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { insertUser } from "../../api";
+import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
   Heading,
@@ -8,47 +7,48 @@ import {
   FormControl,
   FormLabel,
   Input,
-  NumberInput,
-  NumberInputField,
   Button,
-  Checkbox,
   Spinner,
+  Tooltip,
+  Select,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { insertUserValidations } from "../../validations/validations";
 import { alertError, alertSuccess } from "../../helpers/messageAlert";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { GoPlus } from "react-icons/go";
+import { fetchApartments, insertUser } from "../../api";
 
 function NewUser() {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   const queryClient = useQueryClient();
-  const newUserMutation = useMutation(insertUser, {
-    onSuccess: () => queryClient.invalidateQueries("users"),
-  });
-  let navigate = useNavigate();
+  const { data: apartments, isLoading: apartmentsLoading } = useQuery(
+    ["apartmentId-selectbox"],
+    () => fetchApartments(100, 1)
+  );
+  // let navigate = useNavigate();
 
   const handleSubmit = async (values) => {
+    values.apartmentId = values.apartmentId === "" ? null : values.apartmentId;
+    values.carPlateNum =
+      values.carPlateNum === "" ? null : values.carPlateNum.toUpperCase();
     console.log(values);
-    // newApartmentMutation.mutate(values, {
-    //   onSuccess: () => {
-    //     alertSuccess("User added!");
-    //   },
-    //   onError: () => {
-    //     alertError("Error!!");
-    //   },
-    // });
 
     try {
       const res = await insertUser(values);
-      res.isSuccess
-        ? alertSuccess("User added!")
-        : alertError(res.exceptionMessage);
-      queryClient.invalidateQueries("users");
-      navigate("/users");
-    } catch (error) {
-      alertError(error);
+      if (res.isSuccess) {
+        alertSuccess(
+          `User created with Email: ${values.email} / Password: ${res.exceptionMessage} ! Please note this password.`
+        );
+        queryClient.refetchQueries("users");
+        queryClient.invalidateQueries("user-detail");
+        queryClient.invalidateQueries("apartmentId-selectbox");
+        // navigate("/users");
+      } else alertError(res.exceptionMessage);
+    } catch (errors) {
+      console.log(errors);
     }
   };
 
@@ -58,12 +58,12 @@ function NewUser() {
       <Heading textAlign="center">New User</Heading>
       <Formik
         initialValues={{
-          block: "A",
-          number: 1,
-          floor: 1,
-          residentId: 1,
-          type: "1+1",
-          isEmpty: true,
+          apartmentId: "",
+          name: "TestUser",
+          email: "testuser@mail.com",
+          phoneNum: "5321212312",
+          identityNum: "11111111111",
+          carPlateNum: "",
         }}
         validationSchema={insertUserValidations}
         onSubmit={handleSubmit}
@@ -75,6 +75,7 @@ function NewUser() {
           values,
           touched,
           errors,
+          isLoading,
           isSubmitting,
         }) => (
           <>
@@ -82,114 +83,146 @@ function NewUser() {
               <Box my="5" textAlign="left">
                 <Form onSubmit={handleSubmit}>
                   <FormControl mt={5}>
-                    <FormLabel>Resident ID</FormLabel>
-
-                    <NumberInput
-                      name="residentId"
-                      value={values.residentId}
+                    <FormLabel>
+                      Apartment ID{" "}
+                      <Link to="/apartments/new">
+                        <Tooltip
+                          label="Add Apartment!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
+                    <Select
+                      placeholder="Select apartment!"
+                      name="apartmentId"
+                      value={values.apartmentId}
                       disabled={isSubmitting}
+                      isLoading={apartmentsLoading}
                       onBlur={handleBlur}
-                      isInvalid={touched.residentId && errors.residentId}
-                      min={0}
+                      onChange={handleChange}
+                      isInvalid={touched.apartmentId && errors.apartmentId}
+                      //min={0}
                     >
-                      <NumberInputField onChange={handleChange} />
-                    </NumberInput>
-
-                    {touched.residentId && errors.residentId && (
-                      <span>{errors.residentId}</span>
+                      {apartments &&
+                        apartments.isSuccess &&
+                        apartments.list
+                          .filter((item) => item.isEmpty)
+                          .map((item, key) => (
+                            <option key={key} value={item.id}>
+                              Block : {item.block} / Floor : {item.floor} /
+                              Number : {item.number}
+                            </option>
+                          ))}
+                    </Select>
+                    {touched.apartmentId && errors.apartmentId && (
+                      <span>{errors.apartmentId}</span>
                     )}
                   </FormControl>
                   <FormControl mt={5} isRequired>
-                    <FormLabel>Block</FormLabel>
+                    <FormLabel>
+                      <Tooltip
+                        placement="right"
+                        ml={3}
+                        isOpen={touched.name && errors.name}
+                        bgColor={"red.400"}
+                        borderRadius={2}
+                        label={errors.name}
+                        variant="ghost"
+                      >
+                        Name
+                      </Tooltip>
+                    </FormLabel>
                     <Input
-                      name="block"
-                      value={values.block}
+                      name="name"
+                      value={values.name}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      isInvalid={touched.block && errors.block}
+                      isInvalid={touched.name && errors.name}
                     ></Input>
-                    {touched.block && errors.block && (
-                      <span>{errors.block}</span>
-                    )}
+                    {/* {touched.name && errors.name && <span>{errors.name}</span>} */}
                   </FormControl>
                   <FormControl mt={5} isRequired>
-                    <FormLabel>Floor</FormLabel>
-                    <NumberInput
-                      name="floor"
-                      value={values.floor}
+                    <FormLabel>E-Mail</FormLabel>
+                    <Input
+                      name="email"
+                      value={values.email}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
-                      isInvalid={touched.floor && errors.floor}
-                      min={0}
-                      max={99}
-                    >
-                      <NumberInputField onChange={handleChange} />
-                    </NumberInput>
-
-                    {touched.floor && errors.floor && (
-                      <span>{errors.floor}</span>
+                      onChange={handleChange}
+                      isInvalid={touched.email && errors.email}
+                    ></Input>
+                    {touched.email && errors.email && (
+                      <span>{errors.email}</span>
                     )}
-                    <FormControl mt={5} isRequired>
-                      <FormLabel>Number</FormLabel>
-                      <NumberInput
-                        name="number"
-                        value={values.number}
-                        disabled={isSubmitting}
-                        onBlur={handleBlur}
-                        isInvalid={touched.number && errors.number}
-                        min={0}
-                      >
-                        <NumberInputField onChange={handleChange} />
-                      </NumberInput>
-                      {touched.number && errors.number && (
-                        <span>{errors.number}</span>
-                      )}
-                    </FormControl>
                   </FormControl>
 
                   <FormControl mt={5} isRequired>
-                    <FormLabel>Type</FormLabel>
+                    <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input
-                        name="type"
-                        value={values.type}
+                        name="phoneNum"
+                        value={values.phoneNum}
                         disabled={isSubmitting}
                         onBlur={handleBlur}
                         onChange={handleChange}
-                        isInvalid={touched.type && errors.type}
+                        isInvalid={touched.phoneNum && errors.phoneNum}
                       ></Input>
-                      {touched.type && errors.type && (
-                        <span>{errors.type}</span>
+                      {touched.phoneNum && errors.phoneNum && (
+                        <span>{errors.phoneNum}</span>
                       )}
                     </FormControl>
-                    <FormControl mt={5}>
-                      <FormLabel>Is Empty?</FormLabel>
-                      <Checkbox
-                        name="isEmpty"
-                        value={!values.isEmpty}
-                        colorScheme="green"
-                        size="lg"
-                        defaultChecked
-                        onChange={handleChange}
-                      />
-                    </FormControl>
-                    <Button
-                      mt={5}
-                      size="lg"
-                      width="full"
-                      type="submit"
-                      isDisabled={
-                        errors.type ||
-                        errors.residentId ||
-                        errors.number ||
-                        errors.floor ||
-                        errors.block
-                      }
-                    >
-                      {isSubmitting ? <Spinner /> : "Add User"}
-                    </Button>
                   </FormControl>
+                  <FormControl mt={5} isRequired>
+                    <FormLabel>Identity Number</FormLabel>
+                    <Input
+                      name="identityNum"
+                      value={values.identityNum}
+                      disabled={isSubmitting}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      isInvalid={touched.identityNum && errors.identityNum}
+                    ></Input>
+                    {touched.identityNum && errors.identityNum && (
+                      <span>{errors.identityNum}</span>
+                    )}
+                  </FormControl>
+                  <FormControl mt={5}>
+                    <FormLabel>Car Plate Number</FormLabel>
+                    <Input
+                      name="carPlateNum"
+                      value={values.carPlateNum}
+                      textTransform={"uppercase"}
+                      disabled={isSubmitting}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      isInvalid={touched.carPlateNum && errors.carPlateNum}
+                    ></Input>
+                    {touched.carPlateNum && errors.carPlateNum && (
+                      <span>{errors.carPlateNum}</span>
+                    )}
+                  </FormControl>
+                  <Button
+                    mt={5}
+                    size="lg"
+                    width="full"
+                    type="submit"
+                    isDisabled={
+                      errors.apartmentId ||
+                      errors.name ||
+                      errors.email ||
+                      errors.phoneNum ||
+                      errors.identityNum ||
+                      errors.carPlateNum
+                    }
+                  >
+                    {isSubmitting ? <Spinner color="red.500" /> : "Add User"}
+                  </Button>
                 </Form>
               </Box>
             </Box>
