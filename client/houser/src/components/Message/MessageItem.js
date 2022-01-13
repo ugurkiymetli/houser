@@ -7,12 +7,12 @@ import { useQuery, useMutation, useQueryClient } from "react-query";
 import ScrollableFeed from "react-scrollable-feed";
 import {
   Container,
-  Button,
   Tooltip,
   InputGroup,
   InputRightAddon,
   Input,
   Text,
+  Box,
 } from "@chakra-ui/react";
 
 import moment from "moment";
@@ -60,16 +60,19 @@ function MessageItem() {
       senderId: user.id,
       recieverId: senderId,
     });
-    // console.log(message);
     setMessage("");
     alertSuccess("Message sent!");
   };
 
   return (
     <Container maxW="container.lg">
+      <Box mb={"0px"}>
+        <Text fontSize="3xl" textAlign={"center"}>
+          {sender.entity.name}
+        </Text>
+      </Box>
       <div className={styles.messageList}>
         <ScrollableFeed forceScroll={true}>
-          {/* {console.log(data)} */}
           {data.list
             ? data.list.map((item, key) => (
                 <React.Fragment key={key}>
@@ -130,12 +133,6 @@ function MessageItem() {
             }
           />
         </InputGroup>
-        {/* <input
-          className={styles.textInput}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Enter message!"
-        /> */}
       </form>
     </Container>
   );

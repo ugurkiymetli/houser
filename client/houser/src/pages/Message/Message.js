@@ -1,23 +1,27 @@
-import { Heading } from "@chakra-ui/react";
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { fetchMessageList } from "../../api";
+import { fetchMessageList, fetchUsers } from "../../api";
 import MessageList from "../../components/Message/MessageList";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
-import { Container } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
+import { Button, Select } from "antd";
+import Title from "antd/lib/typography/Title";
+import { useNavigate } from "react-router-dom";
 function Message() {
   const { user } = useAuth();
+  const { Option } = Select;
 
   const queryClient = useQueryClient();
+  let navigate = useNavigate();
   const { data, error, isError, isLoading } = useQuery(
     ["messages", user.id],
     () => fetchMessageList(user.id)
   );
-  const invalidateMessageQuery = () => {
-    queryClient.refetchQueries("messages");
-    // console.log(queryClient);
-  };
+  const { data: residents, isLoading: residentsLoading } = useQuery(
+    ["residentId-selectbox"],
+    () => fetchUsers(100, 1)
+  );
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -26,15 +30,41 @@ function Message() {
   }
   if (!data?.isSuccess) console.log(data?.exceptionMessage);
 
+  const onChange = (value) => {
+    navigate(`/messages/${value}`);
+  };
   return (
-    <Container maxW="container.lg">
-      <Heading mb="5" textAlign="center">
-        Messages
-      </Heading>
-      <div onClick={invalidateMessageQuery}>
-        <MessageList messages={data?.list} />
-      </div>
-    </Container>
+    <>
+      <Container maxW="container.lg">
+        <Container display={"flex"} alignItems={"baseline"}>
+          <Box marginLeft="25%">
+            <Title level={2}>Messages</Title>
+          </Box>
+          <Box marginLeft="30%">
+            <Select
+              showSearch
+              placeholder="Select a person to message!"
+              optionFilterProp="children"
+              onChange={onChange}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
+            >
+              {residents &&
+                residents.list.map(
+                  (item, key) =>
+                    item.id !== user.id && (
+                      <Option key={key} value={item.id}>
+                        {item.name}
+                      </Option>
+                    )
+                )}
+            </Select>
+          </Box>
+        </Container>
+        <MessageList messages={data?.list} residents={residents?.list} />
+      </Container>
+    </>
   );
 }
 

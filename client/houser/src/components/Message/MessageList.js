@@ -1,12 +1,11 @@
 import React from "react";
-import { List, Card, Col, Row, Typography } from "antd";
+import { List, Typography } from "antd";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Box, Container } from "@chakra-ui/react";
-function MessageList({ messages }) {
+function MessageList({ messages, residents }) {
   const date = Date.now();
   const { user } = useAuth();
-
   return (
     <Container maxW="container.md">
       <List
@@ -22,11 +21,16 @@ function MessageList({ messages }) {
             >
               <List.Item>
                 <List.Item.Meta
-                  title={`Sender User ID : ${item.senderId}`}
+                  title={
+                    residents &&
+                    residents.find((resident) => resident.id === item.senderId)[
+                      "name"
+                    ]
+                  }
                   description={item.messageText}
                 />
                 <Box mr={2}>
-                  <Typography.Text disabled>
+                  <Typography.Text underline>
                     {Math.round(
                       Math.abs(date - Date.parse(item.idatetime)) / 86400000
                     ) <= 0
@@ -43,45 +47,6 @@ function MessageList({ messages }) {
         )}
       />
     </Container>
-    // <Row gutter={[8, 8]}>
-    //   {messages
-    //     ? messages.map((item, key) => (
-    //         <Col span={24} key={key}>
-    //           <Link
-    //             to={`./${
-    //               item.senderId === user.id ? item.recieverId : item.senderId
-    //             }`}
-    //             key={key}
-    //           >
-    //             <Card
-    //               bordered={!item.isRead}
-    //               // style={`${!item.isRead ? "border: 2px solid black" : null} `}
-    //               // style={!item.isRead ? { border: "2px solid black" } : null}
-    //               style={{ border: "2px solid black" }}
-    //               hoverable={true}
-    //               title={`Sender:${item.senderId} ${
-    //                 !item.isRead ? " - New" : ""
-    //               }`}
-    //               extra={`
-    //               ${
-    //                 Math.round(
-    //                   Math.abs(date - Date.parse(item.idatetime)) / 86400000
-    //                 ) <= 0
-    //                   ? `Today`
-    //                   : ` ${Math.round(
-    //                       Math.abs(date - Date.parse(item.idatetime)) / 86400000
-    //                     )} Days Ago`
-    //               }
-    //               `}
-    //               style={{ width: 300 }}
-    //             >
-    //               <p>{item.messageText}</p>
-    //             </Card>
-    //           </Link>
-    //         </Col>
-    //       ))
-    //     : "No message is found"}
-    // </Row>
   );
 }
 export default MessageList;
