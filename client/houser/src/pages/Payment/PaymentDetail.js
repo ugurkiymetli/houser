@@ -11,6 +11,7 @@ import {
   Input,
   Button,
   Checkbox,
+  Spinner,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
@@ -19,6 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
 import { insertPaymentValidations } from "../../validations/validations";
 import { alertSuccess, alertError } from "../../helpers/messageAlert";
+import { useNavigate } from "react-router-dom";
 function PaymentDetail() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
@@ -27,6 +29,7 @@ function PaymentDetail() {
     ["payment-detail", paymentId],
     () => fetchPaymentDetail(paymentId)
   );
+  let navigate = useNavigate();
   if (!isAdmin && user.paymentId !== paymentId)
     return <Heading>User is not admin!</Heading>;
 
@@ -42,10 +45,12 @@ function PaymentDetail() {
     try {
       console.log("Update submitted!");
       const res = await updatePayment(values, paymentId);
-      res.isSuccess
-        ? alertSuccess("Updated!")
-        : alertError(res.exceptionMessage);
-      queryClient.invalidateQueries("payment-detail");
+      if (res.isSuccess) {
+        alertSuccess("Updated!");
+        queryClient.refetchQueries("payments");
+        queryClient.invalidateQueries("payment-detail");
+        navigate("/payments");
+      } else alertError(res.exceptionMessage);
     } catch (errors) {
       console.log(errors);
     }
@@ -61,10 +66,8 @@ function PaymentDetail() {
           amount: data.entity.amount,
           type: data.entity.type,
           isPayed: data.entity.isPayed,
-          // paymentDate:
-          //   data.entity.paymentDate === null
-          //     ? undefined
-          //     : data.entity.paymentDate,
+          paymentDate:
+            data.entity.paymentDate === null ? "" : data.entity.paymentDate,
           paymentDueDate: data.entity.paymentDueDate,
         }}
         onSubmit={handleSubmit}
@@ -190,7 +193,6 @@ function PaymentDetail() {
                     size="lg"
                     width="full"
                     type="submit"
-                    isLoading={isSubmitting}
                     isDisabled={
                       errors.apartmentId ||
                       errors.amount ||
@@ -199,7 +201,7 @@ function PaymentDetail() {
                       errors.paymentDueDate
                     }
                   >
-                    Update Payment
+                    {isSubmitting ? <Spinner color="red" /> : "Update Payment"}
                   </Button>
                 </form>
               </Box>

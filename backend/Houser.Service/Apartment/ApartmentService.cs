@@ -69,6 +69,13 @@ namespace Houser.Service.Apartment
                     result.ExceptionMessage = $"Apartment with block-number {model.Block}-{model.Number} and  is already created!";
                     return result;
                 }
+                if ( ( !newApartment.IsEmpty && newApartment.ResidentId == null ) || ( newApartment.IsEmpty && newApartment.ResidentId != null ) )
+                {
+                    result.ExceptionMessage = !newApartment.IsEmpty && newApartment.ResidentId == null
+                        ? "Apartment cant be empty and have resident"
+                        : "Apartment cant have resident and be empty!";
+                    return result;
+                }
                 model.Idatetime = DateTime.Now;
                 service.Apartments.Add(model);
                 service.SaveChanges();
@@ -87,6 +94,14 @@ namespace Houser.Service.Apartment
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"Apartment with id: {id} is not found";
+                    return result;
+                }
+                if ( updateApartment.IsEmpty && updateApartment.ResidentId != null )
+                {
+                    result.ExceptionMessage = "Error";
+                    //result.ExceptionMessage = !updateApartment.IsEmpty && updateApartment.ResidentId == null
+                    //    ? "Apartment cant be empty and have resident"
+                    //    : "Apartment cant have resident and be empty!";
                     return result;
                 }
                 //mapping
