@@ -100,35 +100,48 @@ function Payments() {
                 <Th textAlign="center">{item.isPayed ? "✓" : "x"}</Th>
                 <Th textAlign="center">{item.payerId}</Th>
                 <Th textAlign="center">
-                  {moment(item.paymentDueDate).format("DD.MM.YYYY, hh:mm:ss")}
+                  {moment(item.paymentDueDate).format("DD.MM.YYYY")}
                 </Th>
                 <Th textAlign="center">
-                  {item.paymentDate == null
+                  {item.paymentDate === null
                     ? "-"
-                    : moment(item.paymentDate).format("DD.MM.YYYY, hh:mm:ss")}
+                    : moment(item.paymentDate).format("DD.MM.YYYY hh:mm:ss")}
                 </Th>
                 <Th textAlign="center">
-                  {moment(item.idatetime).format("DD.MM.YYYY, hh:mm:ss")}
+                  {moment(item.idatetime).format("DD.MM.YYYY hh:mm:ss")}
                 </Th>
                 <Th>
-                  {!item.isPayed && item.payerId === user.id ? (
-                    <Link to={`./${item.id}`}>
-                      <Tooltip
-                        label="Pay with credit card."
-                        size="sm"
-                        openDelay={50}
+                  {/* {!item.isPayed && item.payerId === user.id ? ( */}
+                  <Link
+                    to={
+                      item.isPayed || item.payerId !== user.id
+                        ? ""
+                        : `./${item.id}/pay`
+                    }
+                  >
+                    <Tooltip
+                      label={"Pay with credit card."}
+                      size="sm"
+                      openDelay={50}
+                    >
+                      <Button
+                        size={"sm"}
+                        disabled={item.isPayed || item.payerId !== user.id}
+                        colorScheme="green"
                       >
-                        <Button size={"sm"} colorScheme="green">
-                          <MdPayment />
-                        </Button>
-                      </Tooltip>
-                    </Link>
-                  ) : null}
+                        <MdPayment />
+                      </Button>
+                    </Tooltip>
+                  </Link>
                 </Th>
                 <Th textAlign="center">
-                  <Link to={`./${item.id}`}>
+                  <Link to={item.isPayed ? "" : `./${item.id}`}>
                     <Tooltip label="Edit payment." size="sm" openDelay={50}>
-                      <Button size={"sm"} colorScheme={"blue"}>
+                      <Button
+                        size={"sm"}
+                        colorScheme={"blue"}
+                        disabled={item.isPayed}
+                      >
                         <FiEdit />
                       </Button>
                     </Tooltip>

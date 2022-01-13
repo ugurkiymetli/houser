@@ -1,5 +1,10 @@
 import React from "react";
-import { fetchPaymentDetail, updatePayment } from "../../api";
+import {
+  fetchApartments,
+  fetchPaymentDetail,
+  fetchUsers,
+  updatePayment,
+} from "../../api";
 import {
   Heading,
   Box,
@@ -12,15 +17,19 @@ import {
   Button,
   Checkbox,
   Spinner,
+  Select,
+  Tooltip,
 } from "@chakra-ui/react";
-import { Formik } from "formik";
+import { Formik, Form } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
 import { insertPaymentValidations } from "../../validations/validations";
 import { alertSuccess, alertError } from "../../helpers/messageAlert";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import moment from "moment";
+import { GoPlus } from "react-icons/go";
 function PaymentDetail() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
@@ -28,6 +37,14 @@ function PaymentDetail() {
   const { isLoading, error, data } = useQuery(
     ["payment-detail", paymentId],
     () => fetchPaymentDetail(paymentId)
+  );
+  const { data: payers, isLoading: payersLoading } = useQuery(
+    ["payerId-selectbox"],
+    () => fetchUsers(100, 1)
+  );
+  const { data: apartments, isLoading: apartmentsLoading } = useQuery(
+    ["apartmentId-selectbox"],
+    () => fetchApartments(100, 1)
   );
   let navigate = useNavigate();
   if (!isAdmin && user.paymentId !== paymentId)
@@ -41,7 +58,10 @@ function PaymentDetail() {
     return <div>Error {error.message}</div>;
   }
   if (!data.isSuccess) console.log(data.exceptionMessage);
+
   const handleSubmit = async (values, bag) => {
+    values.paymentDueDate = moment(values.paymentDueDate).toDate();
+    console.log();
     try {
       console.log("Update submitted!");
       const res = await updatePayment(values, paymentId);
@@ -66,8 +86,8 @@ function PaymentDetail() {
           amount: data.entity.amount,
           type: data.entity.type,
           isPayed: data.entity.isPayed,
-          paymentDate:
-            data.entity.paymentDate === null ? "" : data.entity.paymentDate,
+          // paymentDate:
+          //   data.entity.paymentDate === null ? "" : data.entity.paymentDate,
           paymentDueDate: data.entity.paymentDueDate,
         }}
         onSubmit={handleSubmit}
@@ -85,32 +105,97 @@ function PaymentDetail() {
           <>
             <Box m={5}>
               <Box my="5" textAlign="left">
-                <form onSubmit={handleSubmit}>
-                  <FormControl>
-                    <FormLabel>ID</FormLabel>
-                    <Input
-                      name="id"
-                      value={values.id}
-                      disabled={isSubmitting}
-                      isReadOnly={true}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                    ></Input>
-                  </FormControl>
+                <Form onSubmit={handleSubmit}>
+                  {/* <FormControl> */}
+                  <FormLabel>ID</FormLabel>
+                  <Input
+                    name="id"
+                    value={values.id}
+                    disabled={isSubmitting || data.entity.isPayed}
+                    isReadOnly={true}
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                  ></Input>
+                  {/* </FormControl> */}
                   <FormControl mt={5} isRequired>
-                    <FormLabel>Apartment ID</FormLabel>
-                    <Input
+                    <FormLabel>
+                      Apartment{" "}
+                      <Link to="/apartments/new">
+                        <Tooltip
+                          label="Add Apartment!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
+                    <Select
+                      placeholder="Select apartment!"
                       name="apartmentId"
                       value={values.apartmentId}
                       disabled={isSubmitting}
+                      isLoading={apartmentsLoading}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.apartmentId && errors.apartmentId}
-                    ></Input>
+                    >
+                      {apartments &&
+                        apartments.isSuccess &&
+                        apartments.list
+                          .filter((item) => !item.isEmpty)
+                          .map((item, key) => (
+                            <option key={key} value={item.id}>
+                              Block : {item.block} / Floor : {item.floor} /
+                              Number : {item.number}
+                            </option>
+                          ))}
+                    </Select>
                     {touched.apartmentId && errors.apartmentId && (
                       <span>{errors.apartmentId}</span>
                     )}
                   </FormControl>
+                  <FormControl mt={5}>
+                    <FormLabel>
+                      Resident Name{" "}
+                      <Link to="/users/new">
+                        <Tooltip
+                          label="Add User!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
+                    <Select
+                      placeholder="Select resident"
+                      name="payerId"
+                      value={values.payerId}
+                      disabled={isSubmitting || payersLoading}
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      isInvalid={touched.payerId && errors.payerId}
+                      // //min={0}
+                    >
+                      {payers &&
+                        payers.isSuccess &&
+                        payers.list.map((item, key) => (
+                          <option key={key} value={item.id}>
+                            {item.name}
+                          </option>
+                        ))}
+                    </Select>
+
+                    {touched.payerId && errors.payerId && (
+                      <span>{errors.payerId}</span>
+                    )}
+                  </FormControl>
+
                   <FormControl mt={5} isRequired>
                     <FormLabel>Amount</FormLabel>
                     <InputGroup>
@@ -124,7 +209,7 @@ function PaymentDetail() {
                         name="amount"
                         placeholder="Enter amount"
                         value={values.amount}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || data.entity.isPayed}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         isInvalid={touched.amount && errors.amount}
@@ -136,14 +221,20 @@ function PaymentDetail() {
                   </FormControl>
                   <FormControl mt={5} isRequired>
                     <FormLabel>Type</FormLabel>
-                    <Input
+                    <Select
+                      placeholder="Select type"
                       name="type"
                       value={values.type}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || data.entity.isPayed}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.type && errors.type}
-                    ></Input>
+                    >
+                      <option value="Electricity">Electricity</option>
+                      <option value="Gas">Gas</option>
+                      <option value="Water">Water</option>
+                      <option value="General">General</option>
+                    </Select>
                     {touched.type && errors.type && <span>{errors.type}</span>}
                   </FormControl>
                   {/* <FormControl mt={5}>
@@ -151,7 +242,7 @@ function PaymentDetail() {
                     <Input
                       name="paymentDate"
                       value={values.paymentDate}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || data.entity.isPayed}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.paymentDate && errors.paymentDate}
@@ -165,7 +256,7 @@ function PaymentDetail() {
                     <Input
                       name="paymentDueDate"
                       value={values.paymentDueDate}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || data.entity.isPayed}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={
@@ -183,7 +274,9 @@ function PaymentDetail() {
                       colorScheme="green"
                       size="lg"
                       defaultChecked={values.isPayed}
-                      onChange={handleChange}
+                      isReadOnly={true}
+                      disabled={true}
+                      // onChange={handleChange}
                     >
                       Payed
                     </Checkbox>
@@ -201,9 +294,13 @@ function PaymentDetail() {
                       errors.paymentDueDate
                     }
                   >
-                    {isSubmitting ? <Spinner color="red" /> : "Update Payment"}
+                    {isSubmitting ? (
+                      <Spinner color="red.500" />
+                    ) : (
+                      "Update Payment"
+                    )}
                   </Button>
-                </form>
+                </Form>
               </Box>
             </Box>
           </>
