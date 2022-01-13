@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { insertApartment } from "../../api";
+import React from "react";
+import { fetchUsers, insertApartment } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import {
   Heading,
@@ -13,42 +13,42 @@ import {
   Button,
   Checkbox,
   Spinner,
+  Select,
+  Tooltip,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { GoPlus } from "react-icons/go";
+import { useQuery, useQueryClient } from "react-query";
 import { insertApartmentValidations } from "../../validations/validations";
 import { alertError, alertSuccess } from "../../helpers/messageAlert";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function NewApartment() {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
+  const { data: residents, isLoading: residentsLoading } = useQuery(
+    ["residentId-selectbox"],
+    () => fetchUsers(100, 1)
+  );
   const queryClient = useQueryClient();
-  const newApartmentMutation = useMutation(insertApartment, {
-    onSuccess: () => queryClient.invalidateQueries("apartments"),
-  });
   let navigate = useNavigate();
 
   const handleSubmit = async (values) => {
-    console.log(values);
-    // newApartmentMutation.mutate(values, {
-    //   onSuccess: () => {
-    //     alertSuccess("Apartment added!");
-    //   },
-    //   onError: () => {
-    //     alertError("Error!!");
-    //   },
-    // });
-
+    values.residentId = values.residentId === "" ? null : values.residentId;
+    values.block = values.block.toUpperCase();
+    console.log("new apartment ->", { values });
     try {
       const res = await insertApartment(values);
-      res.isSuccess
-        ? alertSuccess("Apartment added!")
-        : alertError(res.exceptionMessage);
-      queryClient.invalidateQueries("apartments");
-      navigate("/apartments");
-    } catch (error) {
-      alertError(error);
+      if (res.isSuccess) {
+        alertSuccess("Apartment created!");
+        queryClient.refetchQueries("apartments");
+        queryClient.invalidateQueries("apartment-detail");
+        queryClient.invalidateQueries("residentId-selectbox");
+        navigate("/apartments");
+      } else alertError(res.exceptionMessage);
+    } catch (errors) {
+      console.log(errors.response.data.errors);
+      alertError("Error");
     }
   };
 
@@ -56,12 +56,13 @@ function NewApartment() {
   return (
     <Container maxW="container.lg">
       <Heading textAlign="center">New Apartment</Heading>
+
       <Formik
         initialValues={{
           block: "A",
           number: 1,
           floor: 1,
-          residentId: 1,
+          residentId: "",
           type: "1+1",
           isEmpty: true,
         }}
@@ -82,18 +83,44 @@ function NewApartment() {
               <Box my="5" textAlign="left">
                 <Form onSubmit={handleSubmit}>
                   <FormControl mt={5}>
-                    <FormLabel>Resident ID</FormLabel>
-
-                    <NumberInput
+                    <FormLabel>
+                      Resident Name{" "}
+                      <Link to="/users/new">
+                        <Tooltip
+                          label="Add User!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
+                    <Select
+                      placeholder="Select resident"
                       name="residentId"
                       value={values.residentId}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
+                      onChange={handleChange}
+                      isLoading={residentsLoading}
                       isInvalid={touched.residentId && errors.residentId}
-                      min={0}
                     >
-                      <NumberInputField onChange={handleChange} />
-                    </NumberInput>
+                      {residents &&
+                        residents.isSuccess &&
+                        residents.list
+                          .filter(
+                            (item) =>
+                              item.apartmentId === null ||
+                              item.apartmentId === 0
+                          )
+                          .map((item, key) => (
+                            <option key={key} value={item.id}>
+                              {item.name}
+                            </option>
+                          ))}
+                    </Select>
 
                     {touched.residentId && errors.residentId && (
                       <span>{errors.residentId}</span>
@@ -103,6 +130,7 @@ function NewApartment() {
                     <FormLabel>Block</FormLabel>
                     <Input
                       name="block"
+                      textTransform={"uppercase"}
                       value={values.block}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
@@ -121,7 +149,7 @@ function NewApartment() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       isInvalid={touched.floor && errors.floor}
-                      min={0}
+                      //min={0}
                       max={99}
                     >
                       <NumberInputField onChange={handleChange} />
@@ -130,22 +158,22 @@ function NewApartment() {
                     {touched.floor && errors.floor && (
                       <span>{errors.floor}</span>
                     )}
-                    <FormControl mt={5} isRequired>
-                      <FormLabel>Number</FormLabel>
-                      <NumberInput
-                        name="number"
-                        value={values.number}
-                        disabled={isSubmitting}
-                        onBlur={handleBlur}
-                        isInvalid={touched.number && errors.number}
-                        min={0}
-                      >
-                        <NumberInputField onChange={handleChange} />
-                      </NumberInput>
-                      {touched.number && errors.number && (
-                        <span>{errors.number}</span>
-                      )}
-                    </FormControl>
+                  </FormControl>
+                  <FormControl mt={5} isRequired>
+                    <FormLabel>Number</FormLabel>
+                    <NumberInput
+                      name="number"
+                      value={values.number}
+                      disabled={isSubmitting}
+                      onBlur={handleBlur}
+                      isInvalid={touched.number && errors.number}
+                      //min={0}
+                    >
+                      <NumberInputField onChange={handleChange} />
+                    </NumberInput>
+                    {touched.number && errors.number && (
+                      <span>{errors.number}</span>
+                    )}
                   </FormControl>
 
                   <FormControl mt={5} isRequired>
@@ -164,9 +192,7 @@ function NewApartment() {
                       )}
                     </FormControl>
                     <FormControl mt={5}>
-                      <FormLabel>
-                        {values.isEmpty ? "Empty" : "Occupied"}
-                      </FormLabel>
+                      <FormLabel>Is Empty ?</FormLabel>
                       <Checkbox
                         variant="solid"
                         border={"1px solid #38a169"}
@@ -175,6 +201,7 @@ function NewApartment() {
                         value={!values.isEmpty}
                         colorScheme="green"
                         size="lg"
+                        disabled={isSubmitting}
                         defaultChecked
                         onChange={handleChange}
                       />
@@ -192,7 +219,11 @@ function NewApartment() {
                         errors.block
                       }
                     >
-                      {isSubmitting ? <Spinner /> : "Add Apartment"}
+                      {isSubmitting ? (
+                        <Spinner color="red.500" />
+                      ) : (
+                        "Add Apartment"
+                      )}
                     </Button>
                   </FormControl>
                 </Form>

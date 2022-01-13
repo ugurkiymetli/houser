@@ -59,7 +59,7 @@ export const fetchLogin = async (input) => {
 // USERS
 export const insertUser = async (input) => {
   const { data } = await axios.post(
-    `${process.env.REACT_APP_BASE_ENDPOINT}/user/`,
+    `${process.env.REACT_APP_BASE_ENDPOINT}/user/register`,
     input
   );
   return data;

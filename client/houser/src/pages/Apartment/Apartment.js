@@ -95,7 +95,7 @@ function Apartment() {
               <Tr key={item.id}>
                 <Th textAlign="center">{item.id}</Th>
                 <Th textAlign="center">
-                  {item.residentId == null ? "-" : item.residentId}
+                  {item.residentId === null ? "-" : item.residentId}
                 </Th>
                 <Th textAlign="center">{item.block}</Th>
                 <Th textAlign="center">{item.floor}</Th>

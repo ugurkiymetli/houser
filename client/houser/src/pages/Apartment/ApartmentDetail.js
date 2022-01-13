@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchApartmentDetail, updateApartment } from "../../api";
+import { fetchApartmentDetail, fetchUsers, updateApartment } from "../../api";
 import { alertError, alertSuccess } from "../../helpers/messageAlert";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -9,18 +9,21 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Select,
   NumberInput,
   NumberInputField,
   Button,
   Checkbox,
   Spinner,
+  Tooltip,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router";
-import { updateApartmentValidations } from "../../validations/validations";
+import { insertApartmentValidations } from "../../validations/validations";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { GoPlus } from "react-icons/go";
 function ApartmentDetail() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
@@ -29,7 +32,10 @@ function ApartmentDetail() {
     ["apartment-detail", apartmentId],
     () => fetchApartmentDetail(apartmentId)
   );
-
+  const { data: residents, isLoading: residentsLoading } = useQuery(
+    ["residentId-selectbox"],
+    () => fetchUsers(100, 1)
+  );
   let navigate = useNavigate();
   if (!isAdmin && user.apartmentId !== apartmentId)
     return <Heading>User is not admin!</Heading>;
@@ -42,13 +48,16 @@ function ApartmentDetail() {
   }
   if (!data.isSuccess) console.log(data.exceptionMessage);
   const handleSubmit = async (values, bag) => {
-    console.log({ values });
-    values.residentId = values.residentId == "" ? null : values.residentId;
+    values.residentId = values.residentId === "" ? null : values.residentId;
+    values.block = values.block.toUpperCase();
+    console.log("update apartment: ", { values });
     if (
-      (values.isEmpty && values.residentId == null) ||
-      (!values.isEmpty && values.residentId !== null)
+      (values.isEmpty && values.residentId !== null) ||
+      (!values.isEmpty && values.residentId === null)
     ) {
-      alertError("Apartment cant be empty and have resident!");
+      values.isEmpty && values.residentId !== null
+        ? alertError("Apartment cant be empty and have resident!")
+        : alertError("Apartment cant have resident and be empty!");
       return;
     }
     try {
@@ -57,10 +66,12 @@ function ApartmentDetail() {
         alertSuccess("Updated!");
         queryClient.refetchQueries("apartments");
         queryClient.invalidateQueries("apartment-detail");
+        queryClient.refetchQueries("users");
         navigate("/apartments");
       } else alertError(res.exceptionMessage);
-    } catch (error) {
-      alertError(error);
+    } catch (errors) {
+      console.log(errors.response.data.errors);
+      alertError("Error");
     }
   };
   return (
@@ -76,7 +87,7 @@ function ApartmentDetail() {
           type: data.entity.type,
           isEmpty: data.entity.isEmpty,
         }}
-        validationSchema={updateApartmentValidations}
+        validationSchema={insertApartmentValidations}
         onSubmit={handleSubmit}
       >
         {({
@@ -104,26 +115,49 @@ function ApartmentDetail() {
                     ></Input>
                   </FormControl>
                   <FormControl mt={5}>
-                    <FormLabel>Resident ID</FormLabel>
-                    <Input
+                    <FormLabel>
+                      Resident Name{" "}
+                      <Link to="/users/new">
+                        <Tooltip
+                          label="Add User!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
+                    <Select
                       name="residentId"
                       value={values.residentId}
+                      disabled={isSubmitting || residentsLoading}
+                      onBlur={handleBlur}
                       onChange={handleChange}
-                      disabled={isSubmitting}
-                      onBlur={handleBlur}
                       isInvalid={touched.residentId && errors.residentId}
-                    ></Input>
-                    {/* <NumberInput
-                      name="residentId"
-                      value={values.residentId}
-                      disabled={isSubmitting}
-                      onBlur={handleBlur}
-                      isInvalid={touched.residentId && errors.residentId}
-                      min={0}
-                      max={99}
                     >
-                      <NumberInputField onChange={handleChange} />
-                    </NumberInput> */}
+                      {" "}
+                      <option value={""}>Empty</option>
+                      {values.residentId !== null && (
+                        <option value={values.residentId}>
+                          {values.residentId}
+                        </option>
+                      )}
+                      {residents &&
+                        residents.isSuccess &&
+                        residents.list
+                          .filter(
+                            (item) =>
+                              item.apartmentId === null ||
+                              item.apartmentId === 0
+                          )
+                          .map((item, key) => (
+                            <option key={key} value={item.id}>
+                              {item.name}
+                            </option>
+                          ))}
+                    </Select>
 
                     {touched.residentId && errors.residentId && (
                       <span>{errors.residentId}</span>
@@ -133,6 +167,7 @@ function ApartmentDetail() {
                     <FormLabel>Block</FormLabel>
                     <Input
                       name="block"
+                      textTransform={"uppercase"}
                       value={values.block}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
@@ -151,7 +186,6 @@ function ApartmentDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       isInvalid={touched.floor && errors.floor}
-                      min={0}
                     >
                       <NumberInputField onChange={handleChange} />
                     </NumberInput>
@@ -159,22 +193,22 @@ function ApartmentDetail() {
                     {touched.floor && errors.floor && (
                       <span>{errors.floor}</span>
                     )}
-                    <FormControl mt={5} isRequired>
-                      <FormLabel>Number</FormLabel>
-                      <NumberInput
-                        name="number"
-                        value={values.number}
-                        disabled={isSubmitting}
-                        onBlur={handleBlur}
-                        isInvalid={touched.number && errors.number}
-                        min={0}
-                      >
-                        <NumberInputField onChange={handleChange} />
-                      </NumberInput>
-                      {touched.number && errors.number && (
-                        <span>{errors.number}</span>
-                      )}
-                    </FormControl>
+                  </FormControl>
+                  <FormControl mt={5} isRequired>
+                    <FormLabel>Number</FormLabel>
+                    <NumberInput
+                      name="number"
+                      value={values.number}
+                      disabled={isSubmitting}
+                      onBlur={handleBlur}
+                      isInvalid={touched.number && errors.number}
+                      //min={0}
+                    >
+                      <NumberInputField onChange={handleChange} />
+                    </NumberInput>
+                    {touched.number && errors.number && (
+                      <span>{errors.number}</span>
+                    )}
                   </FormControl>
 
                   <FormControl mt={5} isRequired>
@@ -193,9 +227,7 @@ function ApartmentDetail() {
                       )}
                     </FormControl>
                     <FormControl mt={5}>
-                      <FormLabel>
-                        {values.isEmpty ? "Empty" : "Occupied"}
-                      </FormLabel>
+                      <FormLabel>Is Empty ?</FormLabel>
                       <Checkbox
                         variant="solid"
                         border={"1px solid #38a169"}
@@ -203,6 +235,7 @@ function ApartmentDetail() {
                         name="isEmpty"
                         colorScheme="green"
                         size="lg"
+                        disabled={isSubmitting}
                         defaultChecked={values.isEmpty}
                         onChange={handleChange}
                       ></Checkbox>
@@ -222,7 +255,7 @@ function ApartmentDetail() {
                       }
                     >
                       {isSubmitting ? (
-                        <Spinner color="red" />
+                        <Spinner color="red.500" />
                       ) : (
                         "Update Apartment"
                       )}
