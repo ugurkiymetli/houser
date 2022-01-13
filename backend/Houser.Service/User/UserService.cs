@@ -65,10 +65,10 @@ namespace Houser.Service.User
 
             using ( var service = new HouserContext() )
             {
-                bool isUserCreated = service.Users.Any(u => u.Email == model.Email);
+                bool isUserCreated = service.Users.Any(u => u.Email == model.Email && u.IdentityNum == model.IdentityNum);
                 if ( isUserCreated )
                 {
-                    result.ExceptionMessage = $"User with identity number {model.Email} is already created!";
+                    result.ExceptionMessage = $"User is already created!";
                     return result;
                 }
                 /*** Generate password maker ***/
@@ -76,7 +76,7 @@ namespace Houser.Service.User
                 /*** Generate Password ***/
                 string password = pwd.Next();
                 /*** Hash Password ***/
-                result.ExceptionMessage = "generated password: " + password;
+                result.ExceptionMessage = password;
                 model.Password = BCryptNet.HashPassword(password);
 
                 model.Idatetime = DateTime.Now;
@@ -87,6 +87,7 @@ namespace Houser.Service.User
             }
             return result;
         }
+
         public General<UserViewModel> Update( UserInsertModel updateUser, int id )
         {
             var result = new General<UserViewModel>();
@@ -98,6 +99,19 @@ namespace Houser.Service.User
                 {
                     result.ExceptionMessage = $"User with id: {id} is not found";
                     return result;
+                }
+                if ( data.ApartmentId is not null && updateUser.ApartmentId is null )
+                {
+                    var apartment = service.Apartments.Find(data.ApartmentId);
+                    apartment.ResidentId = null;
+                    apartment.IsEmpty = true;
+                }
+
+                if ( updateUser.ApartmentId is not null )
+                {
+                    var apartment = service.Apartments.Find(updateUser.ApartmentId);
+                    apartment.ResidentId = id;
+                    apartment.IsEmpty = false;
                 }
                 //mapping
                 data = mapper.Map(updateUser, data);

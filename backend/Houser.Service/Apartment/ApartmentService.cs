@@ -11,9 +11,11 @@ namespace Houser.Service.Apartment
     public class ApartmentService : IApartmentService
     {
         private readonly IMapper mapper;
-        public ApartmentService( IMapper _mapper )
+        //private readonly IUserService userService;
+        public ApartmentService( IMapper _mapper/*, IUserService _userService */)
         {
             mapper = _mapper;
+            //userService = _userService;
         }
 
         public General<ApartmentViewModel> Get( int pageSize, int pageNumber )
@@ -76,6 +78,23 @@ namespace Houser.Service.Apartment
                         : "Apartment cant have resident and be empty!";
                     return result;
                 }
+
+
+                if ( newApartment.ResidentId is not null )
+                {
+                    var user = service.Users.Find(newApartment.ResidentId);
+                    if ( user is null )
+                    {
+                        result.ExceptionMessage = $"Entered user with id: {newApartment.ResidentId} is not found";
+                        return result;
+                    }
+                    else
+                    {
+                        user.ApartmentId = newApartment.ResidentId;
+                        newApartment.IsEmpty = false;
+                    }
+                }
+
                 model.Idatetime = DateTime.Now;
                 service.Apartments.Add(model);
                 service.SaveChanges();
@@ -84,6 +103,7 @@ namespace Houser.Service.Apartment
             }
             return result;
         }
+
         public General<ApartmentViewModel> Update( ApartmentInsertModel updateApartment, int id )
         {
             var result = new General<ApartmentViewModel>();
@@ -96,13 +116,22 @@ namespace Houser.Service.Apartment
                     result.ExceptionMessage = $"Apartment with id: {id} is not found";
                     return result;
                 }
-                if ( updateApartment.IsEmpty && updateApartment.ResidentId != null )
+                if ( ( updateApartment.IsEmpty && updateApartment.ResidentId != null ) || ( !updateApartment.IsEmpty && updateApartment.ResidentId == null ) )
                 {
-                    result.ExceptionMessage = "Error";
-                    //result.ExceptionMessage = !updateApartment.IsEmpty && updateApartment.ResidentId == null
-                    //    ? "Apartment cant be empty and have resident"
-                    //    : "Apartment cant have resident and be empty!";
+                    result.ExceptionMessage = updateApartment.IsEmpty && updateApartment.ResidentId != null ? "Apartment cant be empty and have resident"
+                        : "Apartment cant have resident and be empty!";
+
                     return result;
+                }
+                if ( data.ResidentId is not null && updateApartment.ResidentId is null )
+                {
+                    var user = service.Users.Find(data.ResidentId);
+                    user.ApartmentId = null;
+                }
+                if ( updateApartment.ResidentId is not null )
+                {
+                    var user = service.Users.Find(updateApartment.ResidentId);
+                    user.ApartmentId = id;
                 }
                 //mapping
                 data = mapper.Map(updateApartment, data);

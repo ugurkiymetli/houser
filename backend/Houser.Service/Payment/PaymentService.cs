@@ -100,8 +100,12 @@ namespace Houser.Service.Payment
                     result.ExceptionMessage = $"Payment with id: {id} is not found";
                     return result;
                 }
+                if ( data.IsPayed )
+                {
+                    result.ExceptionMessage = "Payed items can't be changed!";
+                    return result;
+                }
                 //mapping
-
                 data = mapper.Map(updatePayment, data);
                 data.Udatetime = DateTime.Now;
                 service.SaveChanges();
