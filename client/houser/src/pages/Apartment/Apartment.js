@@ -13,11 +13,13 @@ import {
   Th,
   Tbody,
   TableCaption,
+  Tooltip,
 } from "@chakra-ui/react";
 import { alertSuccess, alertError } from "../../helpers/messageAlert";
 import { Link } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 import { AiFillDelete } from "react-icons/ai";
+import { GoPlus } from "react-icons/go";
 
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
@@ -33,7 +35,7 @@ function Apartment() {
   );
 
   const deleteMutation = useMutation(deleteApartment, {
-    onSuccess: () => queryClient.invalidateQueries("users"),
+    onSuccess: () => queryClient.invalidateQueries("apartments"),
   });
   if (!isAdmin) return <Heading>User is not admin!</Heading>;
   if (isLoading) {
@@ -59,9 +61,13 @@ function Apartment() {
             direction={"row"}
             spacing={1}
           >
-            <Button direction={"row"} colorScheme="green">
-              Add Apartment
-            </Button>
+            <Link to="./new">
+              <Tooltip label="Add Apartment!" closeDelay={30} placement="left">
+                <Button size={"sm"} direction={"row"} colorScheme="green">
+                  <GoPlus />
+                </Button>
+              </Tooltip>
+            </Link>
           </Stack>
         )}
       </Flex>
@@ -99,31 +105,38 @@ function Apartment() {
                   {item.isEmpty ? "Empty" : "Occupied"}
                 </Th>
                 <Th textAlign="center">
-                  <Link to={`./${item.id}`}>
-                    <Button size={"sm"} colorScheme={"blue"}>
-                      <FiEdit />
-                    </Button>
+                  <Link
+                    to={`./${item.id}`}
+                    onClick={() => queryClient.invalidateQueries("apartments")}
+                  >
+                    <Tooltip label="Edit apartment." size="sm" openDelay={50}>
+                      <Button size={"sm"} colorScheme={"blue"}>
+                        <FiEdit />
+                      </Button>
+                    </Tooltip>
                   </Link>
                 </Th>
                 <Th textAlign="center">
-                  <Button
-                    size={"sm"}
-                    colorScheme={"red"}
-                    disabled={deleteMutation.isLoading ? true : false}
-                    onClick={() => {
-                      deleteMutation.mutate(item.id, {
-                        onSuccess: (data) => {
-                          !data.isSuccess
-                            ? alertError(data.exceptionMessage)
-                            : alertSuccess(
-                                `Apartment with id:${item.id} deleted!`
-                              );
-                        },
-                      });
-                    }}
-                  >
-                    <AiFillDelete />
-                  </Button>
+                  <Tooltip label="Delete apartment." size="sm" openDelay={50}>
+                    <Button
+                      size={"sm"}
+                      colorScheme={"red"}
+                      disabled={deleteMutation.isLoading ? true : false}
+                      onClick={() => {
+                        deleteMutation.mutate(item.id, {
+                          onSuccess: (data) => {
+                            !data.isSuccess
+                              ? alertError(data.exceptionMessage)
+                              : alertSuccess(
+                                  `Apartment with id:${item.id} deleted!`
+                                );
+                          },
+                        });
+                      }}
+                    >
+                      <AiFillDelete />
+                    </Button>
+                  </Tooltip>
                 </Th>
               </Tr>
             ))}

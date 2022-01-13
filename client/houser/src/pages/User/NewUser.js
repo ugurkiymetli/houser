@@ -1,6 +1,5 @@
-import React from "react";
-import { fetchApartmentDetail, updateApartment } from "../../api";
-import { alertError, alertSuccess } from "../../helpers/messageAlert";
+import React, { useState } from "react";
+import { insertUser } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import {
   Heading,
@@ -15,68 +14,58 @@ import {
   Checkbox,
   Spinner,
 } from "@chakra-ui/react";
-import { Formik } from "formik";
-import { useQuery, useQueryClient } from "react-query";
-import { useParams } from "react-router";
-import { updateApartmentValidations } from "../../validations/validations";
-import LoadingSpinner from "../../helpers/LoadingSpinner";
+import { Formik, Form } from "formik";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { insertUserValidations } from "../../validations/validations";
+import { alertError, alertSuccess } from "../../helpers/messageAlert";
 import { useNavigate } from "react-router-dom";
-function ApartmentDetail() {
+
+function NewUser() {
   const { user, isAdmin } = useAuth();
+
   const queryClient = useQueryClient();
-  const { apartmentId } = useParams();
-  const { isLoading, error, data } = useQuery(
-    ["apartment-detail", apartmentId],
-    () => fetchApartmentDetail(apartmentId)
-  );
-
+  const newUserMutation = useMutation(insertUser, {
+    onSuccess: () => queryClient.invalidateQueries("users"),
+  });
   let navigate = useNavigate();
-  if (!isAdmin && user.apartmentId !== apartmentId)
-    return <Heading>User is not admin!</Heading>;
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-  if (error) {
-    return <div>Error {error.message}</div>;
-  }
-  if (!data.isSuccess) console.log(data.exceptionMessage);
-  const handleSubmit = async (values, bag) => {
-    console.log({ values });
-    values.residentId = values.residentId == "" ? null : values.residentId;
-    if (
-      (values.isEmpty && values.residentId == null) ||
-      (!values.isEmpty && values.residentId !== null)
-    ) {
-      alertError("Apartment cant be empty and have resident!");
-      return;
-    }
+  const handleSubmit = async (values) => {
+    console.log(values);
+    // newApartmentMutation.mutate(values, {
+    //   onSuccess: () => {
+    //     alertSuccess("User added!");
+    //   },
+    //   onError: () => {
+    //     alertError("Error!!");
+    //   },
+    // });
+
     try {
-      const res = await updateApartment(values, apartmentId);
-      if (res.isSuccess) {
-        alertSuccess("Updated!");
-        queryClient.refetchQueries("apartments");
-        queryClient.invalidateQueries("apartment-detail");
-        navigate("/apartments");
-      } else alertError(res.exceptionMessage);
+      const res = await insertUser(values);
+      res.isSuccess
+        ? alertSuccess("User added!")
+        : alertError(res.exceptionMessage);
+      queryClient.invalidateQueries("users");
+      navigate("/users");
     } catch (error) {
       alertError(error);
     }
   };
+
+  if (!isAdmin) return <Heading>User is not admin!</Heading>;
   return (
     <Container maxW="container.lg">
-      <Heading textAlign="center">Apartment Edit</Heading>
+      <Heading textAlign="center">New User</Heading>
       <Formik
         initialValues={{
-          id: data.entity.id,
-          block: data.entity.block,
-          number: data.entity.number,
-          floor: data.entity.floor,
-          residentId: data.entity.residentId,
-          type: data.entity.type,
-          isEmpty: data.entity.isEmpty,
+          block: "A",
+          number: 1,
+          floor: 1,
+          residentId: 1,
+          type: "1+1",
+          isEmpty: true,
         }}
-        validationSchema={updateApartmentValidations}
+        validationSchema={insertUserValidations}
         onSubmit={handleSubmit}
       >
         {({
@@ -91,39 +80,20 @@ function ApartmentDetail() {
           <>
             <Box m={5}>
               <Box my="5" textAlign="left">
-                <form onSubmit={handleSubmit}>
-                  <FormControl>
-                    <FormLabel>ID</FormLabel>
-                    <Input
-                      name="id"
-                      value={values.id}
-                      isReadOnly={true}
-                      disabled={isSubmitting}
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                    ></Input>
-                  </FormControl>
+                <Form onSubmit={handleSubmit}>
                   <FormControl mt={5}>
                     <FormLabel>Resident ID</FormLabel>
-                    <Input
-                      name="residentId"
-                      value={values.residentId}
-                      onChange={handleChange}
-                      disabled={isSubmitting}
-                      onBlur={handleBlur}
-                      isInvalid={touched.residentId && errors.residentId}
-                    ></Input>
-                    {/* <NumberInput
+
+                    <NumberInput
                       name="residentId"
                       value={values.residentId}
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       isInvalid={touched.residentId && errors.residentId}
                       min={0}
-                      max={99}
                     >
                       <NumberInputField onChange={handleChange} />
-                    </NumberInput> */}
+                    </NumberInput>
 
                     {touched.residentId && errors.residentId && (
                       <span>{errors.residentId}</span>
@@ -152,6 +122,7 @@ function ApartmentDetail() {
                       onBlur={handleBlur}
                       isInvalid={touched.floor && errors.floor}
                       min={0}
+                      max={99}
                     >
                       <NumberInputField onChange={handleChange} />
                     </NumberInput>
@@ -193,26 +164,21 @@ function ApartmentDetail() {
                       )}
                     </FormControl>
                     <FormControl mt={5}>
-                      <FormLabel>
-                        {values.isEmpty ? "Empty" : "Occupied"}
-                      </FormLabel>
+                      <FormLabel>Is Empty?</FormLabel>
                       <Checkbox
-                        variant="solid"
-                        border={"1px solid #38a169"}
-                        borderRadius={"5px"}
                         name="isEmpty"
+                        value={!values.isEmpty}
                         colorScheme="green"
                         size="lg"
-                        defaultChecked={values.isEmpty}
+                        defaultChecked
                         onChange={handleChange}
-                      ></Checkbox>
+                      />
                     </FormControl>
                     <Button
                       mt={5}
                       size="lg"
                       width="full"
                       type="submit"
-                      // isLoading={isSubmitting}
                       isDisabled={
                         errors.type ||
                         errors.residentId ||
@@ -221,14 +187,10 @@ function ApartmentDetail() {
                         errors.block
                       }
                     >
-                      {isSubmitting ? (
-                        <Spinner color="red" />
-                      ) : (
-                        "Update Apartment"
-                      )}
+                      {isSubmitting ? <Spinner /> : "Add User"}
                     </Button>
                   </FormControl>
-                </form>
+                </Form>
               </Box>
             </Box>
           </>
@@ -238,4 +200,4 @@ function ApartmentDetail() {
   );
 }
 
-export default ApartmentDetail;
+export default NewUser;

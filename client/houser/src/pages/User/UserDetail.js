@@ -8,6 +8,7 @@ import {
   FormLabel,
   Input,
   Button,
+  Spinner,
 } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { useQuery, useQueryClient } from "react-query";
@@ -15,6 +16,8 @@ import { useParams } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
 import { alertError, alertSuccess } from "../../helpers/messageAlert";
+import { insertUserValidations } from "../../validations/validations";
+import { useNavigate } from "react-router-dom";
 function UserDetail() {
   const { userId } = useParams();
   const { user, isAdmin } = useAuth();
@@ -23,6 +26,7 @@ function UserDetail() {
     fetchUserDetail(userId)
   );
 
+  let navigate = useNavigate();
   if (!isAdmin && user.id !== userId)
     return <Heading>User is not admin!</Heading>;
 
@@ -38,11 +42,18 @@ function UserDetail() {
     try {
       console.log("Update submitted!");
       const res = await updateUser(values, userId);
-      res.isSuccess
-        ? alertSuccess("Updated!")
-        : alertError(res.exceptionMessage);
-      queryClient.invalidateQueries("user-detail");
+      if (res.isSuccess) {
+        alertSuccess("Updated!");
+        queryClient.refetchQueries("users");
+        queryClient.invalidateQueries("user-detail");
+        navigate("/users");
+      } else alertError(res.exceptionMessage);
+      // res.isSuccess
+      //   ? alertSuccess("Updated!")
+      //   : alertError(res.exceptionMessage);
+      // queryClient.invalidateQueries("user-detail");
     } catch (errors) {
+      alertError(errors);
       console.log(errors);
     }
   };
@@ -57,11 +68,21 @@ function UserDetail() {
           email: data.entity.email,
           phoneNum: data.entity.phoneNum,
           identityNum: data.entity.identityNum,
-          carPlateNum: data.entity.carPlateNum,
+          carPlateNum:
+            data.entity.carPlateNum === null ? "" : data.entity.carPlateNum,
         }}
         onSubmit={handleSubmit}
+        validationSchema={insertUserValidations}
       >
-        {({ handleBlur, handleSubmit, handleChange, values, isSubmitting }) => (
+        {({
+          handleBlur,
+          handleSubmit,
+          handleChange,
+          values,
+          touched,
+          errors,
+          isSubmitting,
+        }) => (
           <>
             <Box m={5}>
               <Box my="5" textAlign="left">
@@ -85,7 +106,11 @@ function UserDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      isInvalid={touched.apartmentId && errors.apartmentId}
                     ></Input>
+                    {touched.apartmentId && errors.apartmentId && (
+                      <span>{errors.apartmentId}</span>
+                    )}
                   </FormControl>
                   <FormControl mt={5}>
                     <FormLabel>Name</FormLabel>
@@ -95,7 +120,9 @@ function UserDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      isInvalid={touched.name && errors.name}
                     ></Input>
+                    {touched.name && errors.name && <span>{errors.name}</span>}
                   </FormControl>
                   <FormControl mt={5}>
                     <FormLabel>E-Mail</FormLabel>
@@ -105,7 +132,11 @@ function UserDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      isInvalid={touched.apartmentId && errors.apartmentId}
                     ></Input>
+                    {touched.apartmentId && errors.apartmentId && (
+                      <span>{errors.apartmentId}</span>
+                    )}
                   </FormControl>
 
                   <FormControl mt={5}>
@@ -117,7 +148,11 @@ function UserDetail() {
                         disabled={isSubmitting}
                         onBlur={handleBlur}
                         onChange={handleChange}
+                        isInvalid={touched.phoneNum && errors.phoneNum}
                       ></Input>
+                      {touched.phoneNum && errors.phoneNum && (
+                        <span>{errors.phoneNum}</span>
+                      )}
                     </FormControl>
                   </FormControl>
                   <FormControl mt={5}>
@@ -128,7 +163,11 @@ function UserDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      isInvalid={touched.identityNum && errors.identityNum}
                     ></Input>
+                    {touched.identityNum && errors.identityNum && (
+                      <span>{errors.identityNum}</span>
+                    )}
                   </FormControl>
                   <FormControl mt={5}>
                     <FormLabel>Car Plate Number</FormLabel>
@@ -138,16 +177,26 @@ function UserDetail() {
                       disabled={isSubmitting}
                       onBlur={handleBlur}
                       onChange={handleChange}
+                      isInvalid={touched.carPlateNum && errors.carPlateNum}
                     ></Input>
+                    {touched.carPlateNum && errors.carPlateNum && (
+                      <span>{errors.carPlateNum}</span>
+                    )}
                   </FormControl>
                   <Button
                     mt={5}
                     size="lg"
                     width="full"
                     type="submit"
-                    isLoading={isSubmitting}
+                    isDisabled={
+                      errors.type ||
+                      errors.residentId ||
+                      errors.number ||
+                      errors.floor ||
+                      errors.block
+                    }
                   >
-                    Update User
+                    {isSubmitting ? <Spinner color="red" /> : "Update User"}
                   </Button>
                 </form>
               </Box>

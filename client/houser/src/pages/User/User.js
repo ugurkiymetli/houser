@@ -13,10 +13,12 @@ import {
   Th,
   Tbody,
   TableCaption,
+  Tooltip,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 import { AiFillDelete } from "react-icons/ai";
+import { GoPlus } from "react-icons/go";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
 function User() {
@@ -57,9 +59,13 @@ function User() {
             direction={"row"}
             spacing={1}
           >
-            <Button direction={"row"} colorScheme="green">
-              Add User
-            </Button>
+            <Link to="./new">
+              <Tooltip label="Add User!" closeDelay={30} placement="left">
+                <Button size={"sm"} direction={"row"} colorScheme="green">
+                  <GoPlus />
+                </Button>
+              </Tooltip>
+            </Link>
           </Stack>
         )}
       </Flex>
@@ -106,29 +112,33 @@ function User() {
                 </Th>
                 <Th textAlign="center">
                   <Link to={`./${item.id}`}>
-                    <Button size={"sm"} colorScheme={"blue"}>
-                      <FiEdit />
-                    </Button>
+                    <Tooltip label="Edit user." size="sm" openDelay={50}>
+                      <Button size={"sm"} colorScheme={"blue"}>
+                        <FiEdit />
+                      </Button>
+                    </Tooltip>
                   </Link>
                 </Th>
                 <Th textAlign="center">
-                  <Button
-                    size={"sm"}
-                    colorScheme={"red"}
-                    disabled={deleteMutation.isLoading ? true : false}
-                    onClick={() => {
-                      deleteMutation.mutate(item.id, {
-                        onSuccess: (data) => {
-                          //   console.log(data);
-                          !data.isSuccess
-                            ? alert(data.exceptionMessage)
-                            : alert(`User with id:${item.id} deleted!`);
-                        },
-                      });
-                    }}
-                  >
-                    <AiFillDelete />
-                  </Button>
+                  <Tooltip label="Delete user." size="sm" openDelay={50}>
+                    <Button
+                      size={"sm"}
+                      colorScheme={"red"}
+                      disabled={deleteMutation.isLoading ? true : false}
+                      onClick={() => {
+                        deleteMutation.mutate(item.id, {
+                          onSuccess: (data) => {
+                            //   console.log(data);
+                            !data.isSuccess
+                              ? alert(data.exceptionMessage)
+                              : alert(`User with id:${item.id} deleted!`);
+                          },
+                        });
+                      }}
+                    >
+                      <AiFillDelete />
+                    </Button>
+                  </Tooltip>
                 </Th>
               </Tr>
             ))}

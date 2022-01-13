@@ -1,6 +1,5 @@
-import { Box, Flex, Button, Stack } from "@chakra-ui/react";
+import { Box, Flex, Button, Stack, Tooltip } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-
 import { FiUsers, FiUser } from "react-icons/fi";
 import { MdOutlinePayments, MdLogout, MdApartment } from "react-icons/md";
 import { TiMessages } from "react-icons/ti";
@@ -79,9 +78,11 @@ function Navbar() {
                     {user.name.split(" ")[0]}
                   </Button>
                 </Link>
-                <Button colorScheme="red" variant="ghost" onClick={logout}>
-                  <MdLogout style={{ fontSize: "1.5rem" }} />
-                </Button>
+                <Tooltip label="Logout" placement="bottom">
+                  <Button colorScheme="red" variant="ghost" onClick={logout}>
+                    <MdLogout style={{ fontSize: "1.5rem" }} />
+                  </Button>
+                </Tooltip>
               </Stack>
             </Flex>
           )}
