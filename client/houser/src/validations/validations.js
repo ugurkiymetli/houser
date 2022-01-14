@@ -59,3 +59,22 @@ export const loginValidation = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string().required("Required"),
 });
+
+export const creditCardValidation = Yup.object().shape({
+  creditCardHolderName: Yup.string()
+    .required("Required")
+    .matches(
+      "^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35{3}){11})$",
+      "Not a valid card number!"
+    ),
+  creditCardHolderName: Yup.string().required("Required").max(50),
+  creditCardCVC: Yup.string()
+    .required("Required")
+    .matches("[1-9]{3}", "Not a valid CVC"),
+  creditCardExpiryDate: Yup.string()
+    .required("Required")
+    .matches(
+      "^(0[1-9]|1[0-2])/?([0-9]{4}|[0-9]{2})$",
+      "Not a valid expiry date!"
+    ),
+});

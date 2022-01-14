@@ -12,6 +12,7 @@ import PaymentDetail from "./Payment/PaymentDetail";
 import NewApartment from "./Apartment/NewApartment";
 import NewUser from "./User/NewUser";
 import NewPayment from "./Payment/NewPayment";
+import PaymentPage from "./Payment/PaymentPage";
 
 function AuthenticatedApp() {
   return (
@@ -27,6 +28,7 @@ function AuthenticatedApp() {
         <Route path="users/new" element={<NewUser />} />
         <Route path="payments" element={<Payments />} />
         <Route path="payments/:paymentId" element={<PaymentDetail />} />
+        <Route path="payments/:paymentId/pay" element={<PaymentPage />} />
         <Route path="payments/new" element={<NewPayment />} />
         <Route path="messages" element={<Message />} />
         <Route path="messages/:senderId" element={<MessageItem />} />

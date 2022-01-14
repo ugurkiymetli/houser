@@ -19,6 +19,10 @@ import {
   Spinner,
   Select,
   Tooltip,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  Flex,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { useQuery, useQueryClient } from "react-query";
@@ -57,7 +61,29 @@ function PaymentDetail() {
   if (error) {
     return <div>Error {error.message}</div>;
   }
-  if (!data.isSuccess) console.log(data.exceptionMessage);
+  if (!data.isSuccess) {
+    console.log(data.exceptionMessage);
+    return (
+      <Flex justifyContent="center" alignItems="center" mt={5}>
+        <Alert
+          status="error"
+          variant="solid"
+          bgColor={"red.500"}
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          textAlign="center"
+          height="200px"
+          width="65%"
+        >
+          <AlertIcon boxSize="40px" mr={0} />
+          <AlertTitle textColor={"ghostwhite"} mt={4} mb={1} fontSize="2xl">
+            {data.exceptionMessage}
+          </AlertTitle>
+        </Alert>
+      </Flex>
+    );
+  }
 
   const handleSubmit = async (values, bag) => {
     values.paymentDueDate = moment(values.paymentDueDate).toDate();
@@ -311,3 +337,17 @@ function PaymentDetail() {
 }
 
 export default PaymentDetail;
+
+/*
+const val = {
+  userId: 0,
+  paymentId: 0,
+  amount: 0,
+  cardNumber: "string",
+  holderName: "string",
+  expiryDate: "string",
+  cvcNumber: "string",
+};
+/
+
+*/

@@ -39,6 +39,12 @@ export const updatePayment = async (input, id) => {
   );
   return data;
 };
+export const updatePaidPayment = async (id) => {
+  const { data } = await axios.put(
+    `${process.env.REACT_APP_BASE_ENDPOINT}/payment/pay?id=${id}`
+  );
+  return data;
+};
 
 export const deletePayment = async (id) => {
   const { data } = await axios.delete(
