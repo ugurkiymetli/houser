@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Houser.Pay.DB\Houser.Pay.DB.csproj" />
+    <ProjectReference Include="..\Houser.Pay.Model\Houser.Pay.Model.csproj" />
+    <ProjectReference Include="..\Houser.Pay.Service\Houser.Pay.Service.csproj" />
+  </ItemGroup>
+
+</Project>
