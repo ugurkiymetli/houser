@@ -58,6 +58,14 @@ namespace Houser.API.Controllers
         {
             return paymentService.Update(updatePayment, id);
         }
+
+        //Update Paid Payment
+        [HttpPut("pay")]
+        public General<bool> UpdatePaid( int id )
+        {
+            return paymentService.UpdatePaid(id);
+        }
+
         [Admin]
         //Delete Payment
         [HttpDelete("{id}")]

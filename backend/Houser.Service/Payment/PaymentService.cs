@@ -137,5 +137,30 @@ namespace Houser.Service.Payment
             }
             return result;
         }
+
+        public General<bool> UpdatePaid( int id )
+        {
+            var result = new General<bool>();
+            using ( var service = new HouserContext() )
+            {
+                //has global filter = !isDeleted
+                var data = service.Payments.SingleOrDefault(p => p.Id == id);
+                if ( data is null )
+                {
+                    result.ExceptionMessage = $"Payment with id: {id} is not found";
+                    return result;
+                }
+                if ( data.IsPayed )
+                {
+                    result.ExceptionMessage = $"Payment has already been made!";
+                    return result;
+                }
+                data.IsPayed = true;
+                data.PayedDate = DateTime.Now;
+                service.SaveChanges();
+                result.IsSuccess = true;
+            }
+            return result;
+        }
     }
 }

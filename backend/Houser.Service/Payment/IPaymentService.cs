@@ -9,6 +9,7 @@ namespace Houser.Service.Payment
         public General<PaymentViewModel> GetById( int id );
         public General<PaymentViewModel> Insert( PaymentInsertModel newPayment );
         public General<PaymentViewModel> Update( PaymentInsertModel updatePayment, int id );
+        public General<bool> UpdatePaid( int id );
         public General<bool> Delete( int id );
     }
 }
