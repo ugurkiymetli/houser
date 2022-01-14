@@ -62,7 +62,12 @@ function Message() {
             </Select>
           </Box>
         </Container>
-        <MessageList messages={data?.list} residents={residents?.list} />
+        {residents && data && (
+          <MessageList
+            messages={data && data?.list}
+            residents={residents && residents?.list}
+          />
+        )}
       </Container>
     </>
   );

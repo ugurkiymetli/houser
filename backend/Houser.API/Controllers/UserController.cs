@@ -24,7 +24,7 @@ namespace Houser.API.Controllers
         {
             return userService.Login(loginUser);
         }
-        [Admin]
+        //[Admin]
         //Get User
         [HttpGet]
         public General<UserViewModel> Get( [FromQuery] int pageSize, int pageNumber )

@@ -86,8 +86,12 @@ function Payments() {
             <Th textAlign="center">Payment Date</Th>
             <Th textAlign="center">Insert Date</Th>
             <Th textAlign="center">Pay</Th>
-            <Th textAlign="center">Edit</Th>
-            <Th textAlign="center">Delete</Th>
+            {isAdmin && (
+              <>
+                <Th textAlign="center">Edit</Th>
+                <Th textAlign="center">Delete</Th>
+              </>
+            )}
           </Tr>
         </Thead>
         <Tbody>
@@ -134,41 +138,45 @@ function Payments() {
                     </Tooltip>
                   </Link>
                 </Th>
-                <Th textAlign="center">
-                  <Link to={item.isPayed ? "" : `./${item.id}`}>
-                    <Tooltip label="Edit payment." size="sm" openDelay={50}>
-                      <Button
-                        size={"sm"}
-                        colorScheme={"blue"}
-                        disabled={item.isPayed}
-                      >
-                        <FiEdit />
-                      </Button>
-                    </Tooltip>
-                  </Link>
-                </Th>
-                <Th textAlign="center">
-                  <Tooltip label="Delete payment." size="sm" openDelay={50}>
-                    <Button
-                      size={"sm"}
-                      colorScheme={"red"}
-                      disabled={deleteMutation.isLoading ? true : false}
-                      onClick={() => {
-                        deleteMutation.mutate(item.id, {
-                          onSuccess: (data) => {
-                            !data.isSuccess
-                              ? alertError(data.exceptionMessage)
-                              : alertSuccess(
-                                  `Payment with id:${item.id} deleted!`
-                                );
-                          },
-                        });
-                      }}
-                    >
-                      <AiFillDelete />
-                    </Button>
-                  </Tooltip>
-                </Th>
+                {isAdmin && (
+                  <>
+                    <Th textAlign="center">
+                      <Link to={item.isPayed ? "" : `./${item.id}`}>
+                        <Tooltip label="Edit payment." size="sm" openDelay={50}>
+                          <Button
+                            size={"sm"}
+                            colorScheme={"blue"}
+                            disabled={item.isPayed}
+                          >
+                            <FiEdit />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </Th>
+                    <Th textAlign="center">
+                      <Tooltip label="Delete payment." size="sm" openDelay={50}>
+                        <Button
+                          size={"sm"}
+                          colorScheme={"red"}
+                          disabled={deleteMutation.isLoading ? true : false}
+                          onClick={() => {
+                            deleteMutation.mutate(item.id, {
+                              onSuccess: (data) => {
+                                !data.isSuccess
+                                  ? alertError(data.exceptionMessage)
+                                  : alertSuccess(
+                                      `Payment with id:${item.id} deleted!`
+                                    );
+                              },
+                            });
+                          }}
+                        >
+                          <AiFillDelete />
+                        </Button>
+                      </Tooltip>
+                    </Th>
+                  </>
+                )}
               </Tr>
             ))}
         </Tbody>
