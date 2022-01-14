@@ -25,7 +25,7 @@ namespace Houser.Pay.DB.Entities
         public string CreditCardHolderName { get; set; }
 
         [BsonElement("cardDate")]
-        public string CreditCardDueDate { get; set; }
+        public string CreditCardExpiryDate { get; set; }
 
         [BsonElement("cardCvc")]
         public string CreditCardCVC { get; set; }

@@ -3,11 +3,18 @@ using Houser.Pay.Model.Payment;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Houser.Pay.Service.Payment
 {
     public class PaymentService : IPaymentService
     {
+        private bool isValid( string dateString )
+        {
+            DateTime dt = DateTime.ParseExact(dateString, "MM/yy", CultureInfo.InvariantCulture);
+            if ( dt < DateTime.Now ) return false;
+            else return true;
+        }
         private IMongoCollection<DB.Entities.Payment> paymentCollection;
         private readonly IMapper mapper;
         public PaymentService( IMongoClient client, IMapper _mapper )
@@ -35,6 +42,9 @@ namespace Houser.Pay.Service.Payment
         public bool Insert( PaymentInsertModel insertPayment )
         {
             bool result = false;
+            var dataAlreadyExists = paymentCollection.Find(p => p.UserId == insertPayment.UserId && p.PaymentId == insertPayment.PaymentId).CountDocuments();
+            if ( dataAlreadyExists > 0 ) return result;
+            if ( !isValid(insertPayment.CreditCardExpiryDate) ) return result;
             var data = mapper.Map<DB.Entities.Payment>(insertPayment);
             data.PaymentDate = DateTime.Now;
             paymentCollection.InsertOne(data);

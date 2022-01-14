@@ -27,7 +27,6 @@ namespace Houser.Pay.Controllers
         {
             return paymentService.GetByUserId(id);
         }
-
         //Insert Payment
         [HttpPost]
         public bool Insert( [FromBody] PaymentInsertModel insertPayment )

@@ -19,6 +19,7 @@ namespace Houser.Pay
         }
 
         public IConfiguration Configuration { get; }
+        readonly string AllowAllHeaders = "_allowAllHeaders";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices( IServiceCollection services )
@@ -38,10 +39,22 @@ namespace Houser.Pay
                 return new MongoClient(connectionString);
             });
 
-            //Enable CORS
-            services.AddCors(c =>
+            ////Enable CORS
+            //services.AddCors(c =>
+            //{
+            //    c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            //});
+            //CORS config
+            services.AddCors(options =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                options.AddPolicy(name: AllowAllHeaders,
+                                  builder =>
+                                  {
+                                      builder
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod()
+                                      .AllowAnyOrigin();
+                                  });
             });
 
             services.AddControllers();
@@ -64,7 +77,8 @@ namespace Houser.Pay
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            //CORS
+            app.UseCors(AllowAllHeaders);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
