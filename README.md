@@ -1,5 +1,9 @@
 # Patika & Gelecek Varlık Fullstack Bootcamp Graduation Project
 
+<!-- <img src="https://user-images.githubusercontent.com/34272634/149639407-13fa149b-0355-4e6a-afc8-0e36470fafb4.gif" width="400"> -->
+
+![menus](https://user-images.githubusercontent.com/34272634/149639407-13fa149b-0355-4e6a-afc8-0e36470fafb4.gif)
+
 ## Apartment<small>(s)</small> Management System
 
 System has 2 types of users. Admins and Users. (Admin is also a user.)
@@ -10,19 +14,33 @@ Admin inserts apartments with / without residents and vice versa.
 
 <!-- [ ADMIN INSERTING APARTMENT AND USER PICTURE ] -->
 
+![apartment_user_insert](https://user-images.githubusercontent.com/34272634/149639405-d173b02e-8fb2-4fa9-bbb6-9ee1da272980.gif)
+
+![user_error](https://user-images.githubusercontent.com/34272634/149639401-181a09c1-f8b8-4497-8e0f-9459e0aea0bb.gif)
+
 They're updatable / deletable.
 
 <!-- [ ADMIN EDITING / DELETING APARTMENT PICTURE ] -->
 
+![user_update](https://user-images.githubusercontent.com/34272634/149639402-1ecfd0b7-c85b-4fe1-bb99-7eb16c885cfc.gif)
+
 After inserting apartments and residents, and/or updating their relationships, admin can create payments for apartments.
 
 <!-- [ ADMIN INSERTING PAYMENTS FOR APARTMENTS PICTURE ] -->
+
+![payment_insert](https://user-images.githubusercontent.com/34272634/149639397-8ffcb415-48f2-41c6-b5c2-5df03b1c844b.gif)
 
 Admin can view payments. And can edit or delete them **if** they're not **payed**.
 
 <!-- [ ADMIN VIEWING / EDITING / DELETING PICTURE ] -->
 
 ### User
+
+Users login via email and password.
+
+<!-- USER LOGİN IMAGE -->
+
+![login](https://user-images.githubusercontent.com/34272634/149639406-914e0fe0-99c7-4cfb-b615-7b52ca633dfe.gif)
 
 Users can view their payments.
 
@@ -32,9 +50,15 @@ Make their payments with credit card.
 
 <!-- [ USER MAKING A PAYMENT - CREDIT CARD PAGE PICTURE ] -->
 
+![payment_make_payment](https://user-images.githubusercontent.com/34272634/149639398-42cbc861-2e05-4b14-b5dc-f16872561ab4.gif)
+
 Users can view their messages and send messages to other residents.
 
 <!-- [ USER MESSAGING PAGE - PICTURE ] -->
+
+![message_menu_send_message](https://user-images.githubusercontent.com/34272634/149639409-e8d4b9a5-7da9-474c-9015-159767873e36.gif)
+
+![message_new](https://user-images.githubusercontent.com/34272634/149639396-0ccd174a-4fcb-4543-887b-e2c4f4113904.gif)
 
 # Backend
 
@@ -1632,9 +1656,14 @@ So to overcome this, you need to configure your network access. (use 0.0.0.0/0 o
 
 # Frontend
 
-Using React for frontend. Basically there's a AuthContext for user management. And rest is tables and forms using API endpoints from backend. I tried my best for user experience, like showing [Tooltip](https://chakra-ui.com/docs/overlay/tooltip) to user for hints about the UI.
+Using React for frontend. Basically there's a AuthContext for user management. And rest is tables and forms using API endpoints from backend.
 
-[INSERT TOOLTIP PICTURE HERE]
+I tried my best for user experience, like showing [Tooltip](https://chakra-ui.com/docs/overlay/tooltip) to user for hints about the UI.
+
+<!-- [INSERT TOOLTIP PICTURE HERE] -->
+<img src="https://user-images.githubusercontent.com/34272634/149639399-2cc1b959-0ba0-4401-bd08-9f8196b12d86.gif" width="200">
+
+<!-- ![tooltip](https://user-images.githubusercontent.com/34272634/149639399-2cc1b959-0ba0-4401-bd08-9f8196b12d86.gif) -->
 
 ## Packages used for this project
 
