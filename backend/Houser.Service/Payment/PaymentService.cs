@@ -22,7 +22,8 @@ namespace Houser.Service.Payment
             using ( var service = new HouserContext() )
             {
                 //has global filter = !isDeleted
-                var data = service.Payments.Where(p => p.Id > 0);
+                //var data = service.Payments.Where(p => p.Id > 0);
+                var data = service.Payments.Where(p => true);
                 //filters payed payments
                 data = isPayed ? data.Where(p => p.IsPayed) : data;
                 //if payerId entered, gets payer's payments.

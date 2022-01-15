@@ -42,13 +42,21 @@ namespace Houser.Pay.Service.Payment
         public bool Insert( PaymentInsertModel insertPayment )
         {
             bool result = false;
-            var dataAlreadyExists = paymentCollection.Find(p => p.UserId == insertPayment.UserId && p.PaymentId == insertPayment.PaymentId).CountDocuments();
-            if ( dataAlreadyExists > 0 ) return result;
-            if ( !isValid(insertPayment.CreditCardExpiryDate) ) return result;
-            var data = mapper.Map<DB.Entities.Payment>(insertPayment);
-            data.PaymentDate = DateTime.Now;
-            paymentCollection.InsertOne(data);
-            result = true;
+            try
+            {
+                var dataAlreadyExists = paymentCollection.Find(p => p.UserId == insertPayment.UserId && p.PaymentId == insertPayment.PaymentId).CountDocuments();
+                if ( dataAlreadyExists > 0 ) return result;
+                if ( !isValid(insertPayment.CreditCardExpiryDate) ) return result;
+                var data = mapper.Map<DB.Entities.Payment>(insertPayment);
+                data.PaymentDate = DateTime.Now;
+                paymentCollection.InsertOne(data);
+                result = true;
+                return result;
+            }
+            catch ( Exception )
+            {
+                throw;
+            }
             return result;
         }
     }

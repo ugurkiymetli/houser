@@ -71,6 +71,17 @@ namespace Houser.Service.User
                     result.ExceptionMessage = $"User is already created!";
                     return result;
                 }
+                if ( newUser.ApartmentId is not null || newUser.ApartmentId < 0 )
+                {
+                    var apartment = service.Apartments.Find(newUser.ApartmentId);
+                    if ( apartment is null )
+                    {
+                        result.ExceptionMessage = $"Entered user with id: {newUser.ApartmentId} is not found";
+                        return result;
+                    }
+                }
+
+
                 /*** Generate password maker ***/
                 var pwd = new Password().IncludeLowercase().IncludeUppercase().LengthRequired(10);
                 /*** Generate Password ***/
@@ -82,6 +93,13 @@ namespace Houser.Service.User
                 model.Idatetime = DateTime.Now;
                 service.Users.Add(model);
                 service.SaveChanges();
+                //update apartment if new inserted user has one 
+                if ( model.ApartmentId is not null || model.ApartmentId > 0 )
+                {
+                    var apartment = service.Apartments.Find(model.ApartmentId);
+                    apartment.ResidentId = model.Id;
+                    service.SaveChanges();
+                }
                 result.Entity = mapper.Map<UserViewModel>(model);
                 result.IsSuccess = true;
             }

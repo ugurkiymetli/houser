@@ -11,7 +11,7 @@ namespace Houser.Model.Payment
         public int PayerId { get; set; }
         public bool IsPayed { get; set; }
         public DateTime? PaymentDueDate { get; set; }
-        public DateTime? PaymentDate { get; set; }
+        public DateTime? PayedDate { get; set; }
         public DateTime Idatetime { get; set; }
         //public DateTime? Udatetime { get; set; }
     }

@@ -78,9 +78,7 @@ namespace Houser.Service.Apartment
                         : "Apartment cant have resident and be empty!";
                     return result;
                 }
-
-
-                if ( newApartment.ResidentId is not null )
+                if ( newApartment.ResidentId is not null || newApartment.ResidentId < 0 )
                 {
                     var user = service.Users.Find(newApartment.ResidentId);
                     if ( user is null )
@@ -88,16 +86,16 @@ namespace Houser.Service.Apartment
                         result.ExceptionMessage = $"Entered user with id: {newApartment.ResidentId} is not found";
                         return result;
                     }
-                    else
-                    {
-                        user.ApartmentId = newApartment.ResidentId;
-                        newApartment.IsEmpty = false;
-                    }
                 }
-
                 model.Idatetime = DateTime.Now;
                 service.Apartments.Add(model);
                 service.SaveChanges();
+                if ( model.ResidentId is not null || model.ResidentId < 0 )
+                {
+                    var user = service.Users.Find(model.ResidentId);
+                    user.ApartmentId = model.Id;
+                    service.SaveChanges();
+                }
                 result.Entity = mapper.Map<ApartmentViewModel>(model);
                 result.IsSuccess = true;
             }
@@ -109,26 +107,39 @@ namespace Houser.Service.Apartment
             var result = new General<ApartmentViewModel>();
             using ( var service = new HouserContext() )
             {
-                //has global filter = isActive && !isDeleted
                 var data = service.Apartments.Find(id);
                 if ( data is null )
                 {
                     result.ExceptionMessage = $"Apartment with id: {id} is not found";
                     return result;
                 }
+
+                //if entered resident id is not found return error.
+                if ( updateApartment.ResidentId is not null || updateApartment.ResidentId < 0 )
+                {
+                    var user = service.Users.Find(updateApartment.ResidentId);
+                    if ( user is null )
+                    {
+                        result.ExceptionMessage = $"Entered user with id: {updateApartment.ResidentId} is not found";
+                        return result;
+                    }
+                }
+
+                //check if empty and has residents or not empty and no residents.
                 if ( ( updateApartment.IsEmpty && updateApartment.ResidentId != null ) || ( !updateApartment.IsEmpty && updateApartment.ResidentId == null ) )
                 {
                     result.ExceptionMessage = updateApartment.IsEmpty && updateApartment.ResidentId != null ? "Apartment cant be empty and have resident"
                         : "Apartment cant have resident and be empty!";
-
                     return result;
                 }
+                //clear resident from apartment
                 if ( data.ResidentId is not null && updateApartment.ResidentId is null )
                 {
                     var user = service.Users.Find(data.ResidentId);
                     user.ApartmentId = null;
                 }
-                if ( updateApartment.ResidentId is not null )
+                //update user with apartment id data
+                if ( updateApartment.ResidentId is not null || updateApartment.ResidentId > 0 )
                 {
                     var user = service.Users.Find(updateApartment.ResidentId);
                     user.ApartmentId = id;
