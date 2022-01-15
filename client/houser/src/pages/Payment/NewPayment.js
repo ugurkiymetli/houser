@@ -14,6 +14,7 @@ import {
   Select,
   Tooltip,
   Link,
+  Text,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { useQuery, useQueryClient } from "react-query";
@@ -27,9 +28,8 @@ import { GoPlus } from "react-icons/go";
 function NewPayment() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-
   let navigate = useNavigate();
-  const { data: payers, isLoading: payersLoading } = useQuery(
+  const { data: residents, isLoading: residentsLoading } = useQuery(
     ["payerId-selectbox"],
     () => fetchUsers(100, 1)
   );
@@ -38,8 +38,13 @@ function NewPayment() {
     () => fetchApartments(100, 1)
   );
   if (!isAdmin) return <Heading>User is not admin!</Heading>;
+  //form submit
   const handleSubmit = async (values, bag) => {
     values.paymentDueDate = moment(values.paymentDueDate).toDate();
+    values.payerId = apartments.list.find(
+      (item) => item.id == values.apartmentId
+    )["residentId"];
+    console.log(values);
     try {
       console.log("insert submitted!");
       const res = await insertPayment(values);
@@ -96,11 +101,11 @@ function NewPayment() {
                       </Link>
                     </FormLabel>
                     <Select
-                      placeholder="Select apartment!"
+                      placeholder="Select apartment"
                       name="apartmentId"
                       value={values.apartmentId}
                       disabled={isSubmitting}
-                      isLoading={apartmentsLoading}
+                      isDisabled={apartmentsLoading}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.apartmentId && errors.apartmentId}
@@ -111,8 +116,8 @@ function NewPayment() {
                           .filter((item) => !item.isEmpty)
                           .map((item, key) => (
                             <option key={key} value={item.id}>
-                              Block : {item.block} / Floor : {item.floor} /
-                              Number : {item.number}
+                              ID: {item.id} / Block : {item.block} / Floor :{" "}
+                              {item.floor} / Number : {item.number}
                             </option>
                           ))}
                     </Select>
@@ -135,19 +140,41 @@ function NewPayment() {
                         </Tooltip>
                       </Link>
                     </FormLabel>
+                    <Text fontSize={"xl"} as="b">
+                      {residents && values.apartmentId !== ""
+                        ? residents.list.find(
+                            (item) => item.apartmentId == values.apartmentId
+                          )["name"]
+                        : "-"}
+                    </Text>
+                  </FormControl>
+                  {/* <FormControl mt={5} isRequired>
+                    <FormLabel>
+                      Resident Name{" "}
+                      <Link to="/users/new">
+                        <Tooltip
+                          label="Add User!"
+                          closeDelay={30}
+                          placement="right"
+                        >
+                          <Button size="xs">
+                            <GoPlus />
+                          </Button>
+                        </Tooltip>
+                      </Link>
+                    </FormLabel>
                     <Select
                       placeholder="Select resident"
                       name="payerId"
                       value={values.payerId}
-                      disabled={isSubmitting || payersLoading}
+                      disabled={isSubmitting || residentsLoading}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.payerId && errors.payerId}
-                      // //min={0}
                     >
-                      {payers &&
-                        payers.isSuccess &&
-                        payers.list.map((item, key) => (
+                      {residents &&
+                        residents.isSuccess &&
+                        residents.list.map((item, key) => (
                           <option key={key} value={item.id}>
                             {item.name}
                           </option>
@@ -157,7 +184,7 @@ function NewPayment() {
                     {touched.payerId && errors.payerId && (
                       <span>{errors.payerId}</span>
                     )}
-                  </FormControl>
+                  </FormControl> */}
                   <FormControl mt={5} isRequired>
                     <FormLabel>Amount</FormLabel>
                     <InputGroup>
@@ -175,6 +202,7 @@ function NewPayment() {
                         onBlur={handleBlur}
                         onChange={handleChange}
                         isInvalid={touched.amount && errors.amount}
+                        autoComplete="off"
                       ></Input>
                     </InputGroup>
                     {touched.amount && errors.amount && (
@@ -224,7 +252,7 @@ function NewPayment() {
                     isDisabled={
                       errors.apartmentId ||
                       errors.amount ||
-                      errors.payerId ||
+                      // errors.payerId ||
                       errors.type ||
                       errors.paymentDueDate
                     }

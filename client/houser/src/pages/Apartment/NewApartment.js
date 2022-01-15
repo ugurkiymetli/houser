@@ -42,6 +42,7 @@ function NewApartment() {
       if (res.isSuccess) {
         alertSuccess("Apartment created!");
         queryClient.refetchQueries("apartments");
+        queryClient.refetchQueries("users");
         queryClient.invalidateQueries("apartment-detail");
         queryClient.invalidateQueries("residentId-selectbox");
         navigate("/apartments");

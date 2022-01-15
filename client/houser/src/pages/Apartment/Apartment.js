@@ -53,7 +53,7 @@ function Apartment() {
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading marginLeft={"50%"}>Apartments</Heading>
+        <Heading marginLeft={"40%"}>Apartments</Heading>
         {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}

@@ -30,15 +30,18 @@ function MessageItem() {
     error,
     isLoading: isMessageDetailLoading,
     isError,
-  } = useQuery(["message-detail", user.id, senderId], () =>
-    fetchMessageDetail(user.id, senderId)
-  );
+  } = useQuery(["message-detail"], () => fetchMessageDetail(user.id, senderId));
   const { data: sender, isLoading: isSenderLoading } = useQuery(
     ["sender", senderId],
     () => fetchUserDetail(senderId)
   );
   const insertMessageMutation = useMutation(insertMessage, {
-    onSuccess: () => queryClient.invalidateQueries("message-detail"),
+    onSuccess: () => {
+      queryClient.invalidateQueries("message-detail");
+      queryClient.invalidateQueries("messages");
+      queryClient.refetchQueries("message-detail");
+      queryClient.refetchQueries("messages");
+    },
   });
 
   if (isMessageDetailLoading || isSenderLoading) {
@@ -62,6 +65,7 @@ function MessageItem() {
     });
     setMessage("");
     alertSuccess("Message sent!");
+    queryClient.refetchQueries("messages");
   };
 
   return (

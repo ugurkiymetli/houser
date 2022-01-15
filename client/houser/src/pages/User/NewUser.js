@@ -28,12 +28,15 @@ function NewUser() {
     ["apartmentId-selectbox"],
     () => fetchApartments(100, 1)
   );
-  // let navigate = useNavigate();
+  let navigate = useNavigate();
 
   const handleSubmit = async (values) => {
+    console.log(values);
     values.apartmentId = values.apartmentId === "" ? null : values.apartmentId;
     values.carPlateNum =
-      values.carPlateNum === "" ? null : values.carPlateNum.toUpperCase();
+      values.carPlateNum === "" || values.carPlateNum === null
+        ? null
+        : values.carPlateNum.toUpperCase();
     console.log(values);
 
     try {
@@ -43,9 +46,10 @@ function NewUser() {
           `User created with Email: ${values.email} / Password: ${res.exceptionMessage} ! Please note this password.`
         );
         queryClient.refetchQueries("users");
+        queryClient.refetchQueries("apartments");
         queryClient.invalidateQueries("user-detail");
         queryClient.invalidateQueries("apartmentId-selectbox");
-        // navigate("/users");
+        navigate("/users");
       } else alertError(res.exceptionMessage);
     } catch (errors) {
       console.log(errors);
@@ -75,7 +79,7 @@ function NewUser() {
           values,
           touched,
           errors,
-          isLoading,
+
           isSubmitting,
         }) => (
           <>
@@ -101,12 +105,10 @@ function NewUser() {
                       placeholder="Select apartment!"
                       name="apartmentId"
                       value={values.apartmentId}
-                      disabled={isSubmitting}
-                      isLoading={apartmentsLoading}
+                      disabled={isSubmitting || apartmentsLoading}
                       onBlur={handleBlur}
                       onChange={handleChange}
                       isInvalid={touched.apartmentId && errors.apartmentId}
-                      //min={0}
                     >
                       {apartments &&
                         apartments.isSuccess &&

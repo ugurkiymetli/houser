@@ -14,9 +14,8 @@ function Message() {
 
   const queryClient = useQueryClient();
   let navigate = useNavigate();
-  const { data, error, isError, isLoading } = useQuery(
-    ["messages", user.id],
-    () => fetchMessageList(user.id)
+  const { data, error, isError, isLoading } = useQuery(["messages"], () =>
+    fetchMessageList(user.id)
   );
   const { data: residents, isLoading: residentsLoading } = useQuery(
     ["residentId-selectbox"],

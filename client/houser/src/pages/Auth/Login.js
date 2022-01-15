@@ -40,7 +40,8 @@ function Login() {
   };
   return (
     <Formik
-      initialValues={{ email: "", password: "" }}
+      // initialValues={{ email: "", password: "" }}
+      initialValues={{ email: "ugurkiymetli@mail.com", password: "abc123" }}
       onSubmit={handleSubmit}
       validationSchema={loginValidation}
     >
@@ -61,7 +62,7 @@ function Login() {
                 <Heading as="h3" size="lg">
                   Log In
                 </Heading>
-                ugurkiymetli@mail.com abc123
+                {/* ugurkiymetli@mail.com abc123 */}
               </Box>
               <Box my={5}>
                 {errors.general && (
@@ -79,6 +80,7 @@ function Login() {
                       onBlur={handleBlur}
                       disabled={isSubmitting}
                       isInvalid={touched.email && errors.email}
+                      autoComplete={"off"}
                     ></Input>
                     {touched.email && errors.email && (
                       <Box mt={2}>

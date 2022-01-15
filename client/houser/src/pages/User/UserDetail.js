@@ -59,10 +59,10 @@ function UserDetail() {
 
   const handleSubmit = async (values, bag) => {
     // console.log("user-detail-values:", values);
-    // values.apartmentId =
-    //   values.apartmentId === "" || values.apartmentId === 0
-    //     ? null
-    //     : values.apartmentId;
+    values.apartmentId =
+      values.apartmentId === "" || values.apartmentId === 0
+        ? null
+        : values.apartmentId;
 
     //convert carplatenum empty string to null and toUpperCase here
     values.carPlateNum =
@@ -74,9 +74,10 @@ function UserDetail() {
       if (res.isSuccess) {
         alertSuccess("Updated!");
         //refetch and invalidate queries here after updating
-        queryClient.refetchQueries("users");
-        queryClient.invalidateQueries("user-detail");
+        queryClient.refetchQueries("users", values.id);
+        queryClient.refetchQueries("user-detail");
         queryClient.refetchQueries("apartments");
+        queryClient.refetchQueries("apartmentId-selectbox");
         //redirect to users page
         navigate("/users");
       } else alertError(res.exceptionMessage);

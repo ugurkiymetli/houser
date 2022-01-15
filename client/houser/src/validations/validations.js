@@ -26,7 +26,7 @@ export const insertApartmentValidations = Yup.object().shape({
 });
 export const insertPaymentValidations = Yup.object().shape({
   apartmentId: Yup.number().required("Required").min(1),
-  payerId: Yup.number().required("Required").min(1),
+  // payerId: Yup.number().required("Required").min(1),
   amount: Yup.number().required("Required").min(1),
   type: Yup.string().required("Required").max(50),
   isPayed: Yup.bool(),

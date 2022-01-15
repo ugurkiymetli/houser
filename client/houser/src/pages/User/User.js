@@ -52,7 +52,7 @@ function User() {
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading marginLeft={"50%"}>Users</Heading>
+        <Heading marginLeft={"40%"}>Users</Heading>
         {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}

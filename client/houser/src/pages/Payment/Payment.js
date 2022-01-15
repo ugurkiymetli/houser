@@ -47,7 +47,7 @@ function Payments() {
   return (
     <Box mb={2} p={6}>
       <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading marginLeft={"50%"}>Payments</Heading>
+        <Heading marginLeft={"40%"}>Payments</Heading>
         {isAdmin && (
           <Stack
             flex={{ base: 1, md: 0 }}
@@ -107,9 +107,9 @@ function Payments() {
                   {moment(item.paymentDueDate).format("DD.MM.YYYY")}
                 </Th>
                 <Th textAlign="center">
-                  {item.paymentDate === null
+                  {item.payedDate === null
                     ? "-"
-                    : moment(item.paymentDate).format("DD.MM.YYYY hh:mm:ss")}
+                    : moment(item.payedDate).format("DD.MM.YYYY hh:mm:ss")}
                 </Th>
                 <Th textAlign="center">
                   {moment(item.idatetime).format("DD.MM.YYYY hh:mm:ss")}
@@ -158,7 +158,11 @@ function Payments() {
                         <Button
                           size={"sm"}
                           colorScheme={"red"}
-                          disabled={deleteMutation.isLoading ? true : false}
+                          disabled={
+                            deleteMutation.isLoading
+                              ? true
+                              : false || item.isPayed
+                          }
                           onClick={() => {
                             deleteMutation.mutate(item.id, {
                               onSuccess: (data) => {
