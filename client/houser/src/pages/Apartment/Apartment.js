@@ -90,6 +90,7 @@ function Apartment() {
       responsive: ["lg"],
       sorter: (a, b) => a.isEmpty - b.isEmpty,
     },
+
     {
       title: "Action",
       dataIndex: "action",
@@ -103,13 +104,16 @@ function Apartment() {
             to={`./${record.id}`}
             onClick={() => queryClient.invalidateQueries("apartments")}
           >
-            <Tooltip placement="left" title="Edit apartment.">
-              <Button icon={<EditOutlined />}></Button>
+            <Tooltip placement="top" title="Edit apartment.">
+              <Button
+                style={{ backgroundColor: "#bae7ff" }}
+                icon={<EditOutlined />}
+              ></Button>
             </Tooltip>
           </Link>
           {/* //delete button */}
 
-          <Tooltip placement="right" title="Delete apartment." color={"red"}>
+          <Tooltip placement="top" title="Delete apartment." color={"red"}>
             <div>
               <Popconfirm
                 title="Are you sure to delete this apartment?"
@@ -119,7 +123,7 @@ function Apartment() {
                 cancelText="No"
               >
                 <Button
-                  danger
+                  style={{ backgroundColor: "#ffa39e" }}
                   loading={deleteApartmentMutation.isLoading ? true : false}
                   icon={<DeleteOutlined />}
                 ></Button>

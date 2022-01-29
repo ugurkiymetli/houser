@@ -123,13 +123,16 @@ function User() {
             to={`./${record.id}`}
             onClick={() => queryClient.invalidateQueries("users")}
           >
-            <Tooltip placement="left" title="Edit user.">
-              <Button icon={<EditOutlined />}></Button>
+            <Tooltip placement="top" title="Edit user.">
+              <Button
+                style={{ backgroundColor: "#bae7ff" }}
+                icon={<EditOutlined />}
+              ></Button>
             </Tooltip>
           </Link>
           {/* //delete button */}
 
-          <Tooltip placement="right" title="Delete user." color={"red"}>
+          <Tooltip placement="top" title="Delete user." color={"red"}>
             <div>
               <Popconfirm
                 title="Are you sure to delete this user?"
@@ -139,7 +142,7 @@ function User() {
                 cancelText="No"
               >
                 <Button
-                  danger
+                  style={{ backgroundColor: "#ffa39e" }}
                   loading={deleteUserMutation.isLoading ? true : false}
                   icon={<DeleteOutlined />}
                 ></Button>
