@@ -1,43 +1,145 @@
 import React, { useState } from "react";
 import { fetchApartments, deleteApartment } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import {
-  Button,
-  Box,
-  Flex,
-  Stack,
-  Heading,
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  TableCaption,
-  Tooltip,
-} from "@chakra-ui/react";
 import { alertSuccess, alertError } from "../../helpers/messageAlert";
 import { Link } from "react-router-dom";
-import { FiEdit } from "react-icons/fi";
-import { AiFillDelete } from "react-icons/ai";
-import { GoPlus } from "react-icons/go";
-
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
+import {
+  Table,
+  Typography,
+  Checkbox,
+  Space,
+  Popconfirm,
+  Button,
+  Tooltip,
+} from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 function Apartment() {
   const { isAdmin } = useAuth();
-
   const [params] = useState({ pageSize: 100, pageNumber: 1 });
   const queryClient = useQueryClient();
-
   const { isLoading, isError, data, error } = useQuery(
     ["apartments", params.pageSize, params.pageNumber],
     () => fetchApartments(params.pageSize, params.pageNumber)
   );
-
-  const deleteMutation = useMutation(deleteApartment, {
+  const deleteApartmentMutation = useMutation(deleteApartment, {
     onSuccess: () => queryClient.invalidateQueries("apartments"),
   });
-  if (!isAdmin) return <Heading>User is not admin!</Heading>;
+
+  const deleteApartmentRecord = (record) => {
+    deleteApartmentMutation.mutate(record.id, {
+      onSuccess: (data) => {
+        !data.isSuccess
+          ? alertError(data.exceptionMessage)
+          : alertSuccess(`Apartment with id:${record.id} deleted!`);
+      },
+    });
+  };
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: {
+        compare: (a, b) => a.id - b.id,
+      },
+    },
+    {
+      title: "Block",
+      dataIndex: "block",
+      key: "block",
+      sorter: {
+        compare: (a, b) => a.block - b.block,
+      },
+    },
+    {
+      title: "Number",
+      dataIndex: "number",
+      key: "number",
+    },
+    {
+      title: "Floor",
+      dataIndex: "floor",
+      key: "floor",
+    },
+    {
+      title: "Resident Id",
+      dataIndex: "residentId",
+      key: "residentId",
+      sorter: {
+        compare: (a, b) => a.residentId - b.residentId,
+      },
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      sorter: {
+        compare: (a, b) => a.type - b.type,
+      },
+      responsive: ["lg"],
+    },
+    {
+      title: "Is Empty",
+      dataIndex: "isEmpty",
+      key: "isEmpty",
+      render: (record) => (
+        <Checkbox checked={!record} onClick={null}>
+          {record ? "Empty" : "Occupied"}
+        </Checkbox>
+      ),
+      responsive: ["lg"],
+      sorter: {
+        compare: (a, b) => a.isEmpty - b.isEmpty,
+      },
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (text, record) => (
+        <Space
+          direction="horizontal"
+          style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
+        >
+          {/* //edit button */}
+          <Link
+            to={`./${record.id}`}
+            onClick={() => queryClient.invalidateQueries("apartments")}
+          >
+            <Tooltip placement="left" title="Edit apartment.">
+              <Button icon={<EditOutlined />}></Button>
+            </Tooltip>
+          </Link>
+          {/* //delete button */}
+
+          <Tooltip placement="right" title="Delete apartment." color={"red"}>
+            <div>
+              <Popconfirm
+                title="Are you sure to delete this apartment?"
+                onConfirm={() => deleteApartmentRecord(record)}
+                onCancel={() => console.log("canceled")}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  danger
+                  loading={deleteApartmentMutation.isLoading ? true : false}
+                  icon={<DeleteOutlined />}
+                ></Button>
+              </Popconfirm>
+            </div>
+          </Tooltip>
+        </Space>
+      ),
+      fixed: "right",
+    },
+    ,
+  ];
+  const { Title } = Typography;
+
+  if (!isAdmin) return <Title>User is not admin!</Title>;
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -49,100 +151,40 @@ function Apartment() {
     );
   }
   if (!data.isSuccess) alertError(data.exceptionMessage);
-
   return (
-    <Box mb={2} p={6}>
-      <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading marginLeft={"40%"}>Apartments</Heading>
-        {isAdmin && (
-          <Stack
-            flex={{ base: 1, md: 0 }}
-            justify={"flex-end"}
-            direction={"row"}
-            spacing={1}
-          >
-            <Link to="./new">
-              <Tooltip label="Add Apartment!" closeDelay={30} placement="left">
-                <Button size={"sm"} direction={"row"} colorScheme="green">
-                  <GoPlus />
-                </Button>
-              </Tooltip>
-            </Link>
-          </Stack>
-        )}
-      </Flex>
-      <Table mt={5} variant="striped" colorScheme="black">
-        {!data.isSuccess && (
-          <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
-        )}
-        <TableCaption> Apartments - Total ({data.totalCount})</TableCaption>
-        <Thead>
-          <Tr>
-            <Th textAlign="center">ID</Th>
-            <Th textAlign="center">Resident Id</Th>
-            <Th textAlign="center">Block</Th>
-            <Th textAlign="center">Floor</Th>
-            <Th textAlign="center">Number</Th>
-            <Th textAlign="center">Type</Th>
-            <Th textAlign="center">Occupation</Th>
-            <Th textAlign="center">Edit</Th>
-            <Th textAlign="center">Delete</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {data.isSuccess &&
-            data.list.map((item) => (
-              <Tr key={item.id}>
-                <Th textAlign="center">{item.id}</Th>
-                <Th textAlign="center">
-                  {item.residentId === null ? "-" : item.residentId}
-                </Th>
-                <Th textAlign="center">{item.block}</Th>
-                <Th textAlign="center">{item.floor}</Th>
-                <Th textAlign="center">{item.number}</Th>
-                <Th textAlign="center">{item.type}</Th>
-                <Th textAlign="center">
-                  {item.isEmpty ? "Empty" : "Occupied"}
-                </Th>
-                <Th textAlign="center">
-                  <Link
-                    to={`./${item.id}`}
-                    onClick={() => queryClient.invalidateQueries("apartments")}
-                  >
-                    <Tooltip label="Edit apartment." size="sm" openDelay={50}>
-                      <Button size={"sm"} colorScheme={"blue"}>
-                        <FiEdit />
-                      </Button>
-                    </Tooltip>
-                  </Link>
-                </Th>
-                <Th textAlign="center">
-                  <Tooltip label="Delete apartment." size="sm" openDelay={50}>
-                    <Button
-                      size={"sm"}
-                      colorScheme={"red"}
-                      disabled={deleteMutation.isLoading ? true : false}
-                      onClick={() => {
-                        deleteMutation.mutate(item.id, {
-                          onSuccess: (data) => {
-                            !data.isSuccess
-                              ? alertError(data.exceptionMessage)
-                              : alertSuccess(
-                                  `Apartment with id:${item.id} deleted!`
-                                );
-                          },
-                        });
-                      }}
-                    >
-                      <AiFillDelete />
-                    </Button>
-                  </Tooltip>
-                </Th>
-              </Tr>
-            ))}
-        </Tbody>
-      </Table>
-    </Box>
+    <>
+      <Space
+        direction="horizontal"
+        style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
+      >
+        <Title>Apartments</Title>
+        <Link to="./new">
+          <Tooltip title="Add Apartment!" placement="right">
+            <Button
+              icon={<PlusOutlined />}
+              style={{
+                marginBottom: "10px",
+              }}
+            />
+          </Tooltip>
+        </Link>
+      </Space>
+
+      <Table
+        style={{ marginRight: "2.5%", marginLeft: "2.5%" }}
+        loading={isLoading}
+        dataSource={data.list}
+        columns={columns}
+        rowKey="id"
+        scroll={{ y: "70vh" }}
+        // pagination={{
+        //   defaultPageSize: 20,
+        //   simple: true,
+        //   position: ["topRight", "bottomRight"],
+        // }}
+        pagination={false}
+      ></Table>
+    </>
   );
 }
 

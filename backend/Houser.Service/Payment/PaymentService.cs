@@ -77,7 +77,7 @@ namespace Houser.Service.Payment
                 p.ApartmentId == newPayment.ApartmentId);
                 if ( isPaymentCreated )
                 {
-                    result.ExceptionMessage = $"Payment already created! Apartment: {model.ApartmentId} - {model.Type} - {model.Amount}₺ - {model.PaymentDueDate.ToShortDateString()}!";
+                    result.ExceptionMessage = $"Payment already created! Apartment: {model.ApartmentId} - {model.Type} - {model.PaymentDueDate.ToShortDateString()}!";
                     return result;
                 }
                 model.Idatetime = DateTime.Now;

@@ -23,7 +23,8 @@ namespace Houser.API.Helpers
             {
                 // attach user to context on successful jwt validation
                 context.Items["User"] = userService.GetById(userId.Value).Entity;
-                context.Items["IsAdmin"] = userService.IsUserAdmin(userId.Value).IsSuccess;
+                //context.Items["IsAdmin"] = userService.IsUserAdmin(userId.Value).IsSuccess;
+                context.Items["IsAdmin"] = ( ( Houser.Model.User.UserViewModel )context.Items["User"] ).IsAdmin;
             }
             await next(context);
         }

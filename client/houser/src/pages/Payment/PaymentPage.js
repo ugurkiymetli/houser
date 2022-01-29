@@ -92,24 +92,24 @@ function PaymentPage() {
       <PaymentInfo payment={data.entity} />
 
       <Formik
-        // initialValues={{
-        //   userId: user.id,
-        //   paymentId: data?.entity.id,
-        //   amount: data?.entity.amount,
-        //   creditCardNumber: "4644509881052561",
-        //   creditCardHolderName: "uğur kıymetli",
-        //   creditCardCVC: "123",
-        //   creditCardExpiryDate: "12/23",
-        // }}
         initialValues={{
           userId: user.id,
           paymentId: data?.entity.id,
           amount: data?.entity.amount,
-          creditCardNumber: "",
-          creditCardHolderName: "",
-          creditCardCVC: "",
-          creditCardExpiryDate: "",
+          creditCardNumber: "4644509881052561",
+          creditCardHolderName: "uğur kıymetli",
+          creditCardCVC: "123",
+          creditCardExpiryDate: "12/23",
         }}
+        // initialValues={{
+        //   userId: user.id,
+        //   paymentId: data?.entity.id,
+        //   amount: data?.entity.amount,
+        //   creditCardNumber: "",
+        //   creditCardHolderName: "",
+        //   creditCardCVC: "",
+        //   creditCardExpiryDate: "",
+        // }}
         onSubmit={handleSubmit}
         validationSchema={creditCardValidation}
       >
