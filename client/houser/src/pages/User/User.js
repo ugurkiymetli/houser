@@ -1,27 +1,37 @@
 import React, { useState } from "react";
 import { deleteUser, fetchUsers } from "../../api";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import {
-  Button,
-  Box,
-  Flex,
-  Stack,
-  Heading,
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  TableCaption,
-  Tooltip,
-} from "@chakra-ui/react";
+// import {
+//   Button,
+//   Box,
+//   Flex,
+//   Stack,
+//   Heading,
+//   Table,
+//   Thead,
+//   Tr,
+//   Th,
+//   Tbody,
+//   TableCaption,
+//   Tooltip,
+// } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { FiEdit } from "react-icons/fi";
-import { AiFillDelete } from "react-icons/ai";
-import { GoPlus } from "react-icons/go";
+// import { FiEdit } from "react-icons/fi";
+// import { AiFillDelete } from "react-icons/ai";
+// import { GoPlus } from "react-icons/go";
 import { useAuth } from "../../context/AuthContext";
 import LoadingSpinner from "../../helpers/LoadingSpinner";
 import { alertError, alertSuccess } from "../../helpers/messageAlert";
+import {
+  Table,
+  Typography,
+  Checkbox,
+  Space,
+  Popconfirm,
+  Button,
+  Tooltip,
+} from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 function User() {
   const { isAdmin } = useAuth();
   const [params] = useState({ pageSize: 100, pageNumber: 1 });
@@ -30,16 +40,123 @@ function User() {
     ["users", params.pageSize, params.pageNumber],
     () => fetchUsers(params.pageSize, params.pageNumber)
   );
-
   const deleteUserMutation = useMutation(deleteUser, {
     onSuccess: () => queryClient.invalidateQueries("users"),
   });
-  if (!isAdmin) {
-    // alert("User is not admin!");
-    // window.location.href = "http://localhost:11887/payments";
+  const deleteUserRecord = (record) => {
+    deleteUserMutation.mutate(record.id, {
+      onSuccess: (data) => {
+        !data.isSuccess
+          ? alertError(data.exceptionMessage)
+          : alertSuccess(`User with id:${record.id} deleted!`);
+      },
+    });
+  };
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: {
+        compare: (a, b) => a.id - b.id,
+      },
+      width: 80,
+    },
+    {
+      title: "Apartment Id",
+      dataIndex: "apartmentId",
+      key: "apartmentId",
+      render: (record) => (
+        <p>{record === null || record === 0 ? "-" : record}</p>
+      ),
+      sorter: (a, b) => a.apartmentId - b.apartmentId,
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
 
-    // navigate("/payments", { replace: true });
-    return <Heading>User is not admin!</Heading>;
+      render: (record) => <a href={`mailto:${record}`}>{record}</a>,
+    },
+    {
+      title: "Phone Number",
+      dataIndex: "phoneNum",
+      key: "phoneNum",
+      sorter: (a, b) => a.phoneNum - b.phoneNum,
+
+      render: (record) => <a href={`tel:+90${record}`}>+90{record}</a>,
+      responsive: ["md"],
+    },
+    {
+      title: "Identity Number",
+      dataIndex: "identityNum",
+      key: "identityNum",
+      sorter: (a, b) => a.identityNum - b.identityNum,
+
+      responsive: ["lg"],
+    },
+    {
+      title: "Car Plate Number",
+      dataIndex: "carPlateNum",
+      key: "carPlateNum",
+      // sorter: (a, b) => a.carPlateNum.localeCompare(b.carPlateNum),
+      render: (record) => <p>{record === null || "" ? "-" : record}</p>,
+      responsive: ["lg"],
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (text, record) => (
+        <Space
+          direction="horizontal"
+          style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
+        >
+          {/* //edit button */}
+          <Link
+            to={`./${record.id}`}
+            onClick={() => queryClient.invalidateQueries("users")}
+          >
+            <Tooltip placement="left" title="Edit user.">
+              <Button icon={<EditOutlined />}></Button>
+            </Tooltip>
+          </Link>
+          {/* //delete button */}
+
+          <Tooltip placement="right" title="Delete user." color={"red"}>
+            <div>
+              <Popconfirm
+                title="Are you sure to delete this user?"
+                onConfirm={() => deleteUserRecord(record)}
+                onCancel={() => console.log("canceled")}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button
+                  danger
+                  loading={deleteUserMutation.isLoading ? true : false}
+                  icon={<DeleteOutlined />}
+                ></Button>
+              </Popconfirm>
+            </div>
+          </Tooltip>
+        </Space>
+      ),
+      fixed: "right",
+      width: 90,
+    },
+    ,
+  ];
+  const { Title } = Typography;
+
+  if (!isAdmin) {
+    return <Title>User is not admin!</Title>;
   }
   if (isLoading) {
     return <LoadingSpinner />;
@@ -50,108 +167,39 @@ function User() {
   if (!data.isSuccess) console.log(data.exceptionMessage);
 
   return (
-    <Box mb={2} p={6}>
-      <Flex alignItems={"center"} justifyContent={"space-between"}>
-        <Heading marginLeft={"40%"}>Users</Heading>
-        {isAdmin && (
-          <Stack
-            flex={{ base: 1, md: 0 }}
-            justify={"flex-end"}
-            direction={"row"}
-            spacing={1}
-          >
-            <Link to="./new">
-              <Tooltip label="Add User!" closeDelay={30} placement="left">
-                <Button size={"sm"} direction={"row"} colorScheme="green">
-                  <GoPlus />
-                </Button>
-              </Tooltip>
-            </Link>
-          </Stack>
-        )}
-      </Flex>
-      {/* CHAKRA TABLE */}
+    <>
+      <Space
+        direction="horizontal"
+        style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
+      >
+        <Title>Users</Title>
+        <Link to="./new">
+          <Tooltip title="Add user!" placement="right">
+            <Button
+              icon={<PlusOutlined />}
+              style={{
+                marginBottom: "10px",
+              }}
+            />
+          </Tooltip>
+        </Link>
+      </Space>
 
-      <Table mt={5} variant="striped" colorScheme="black">
-        {!data.isSuccess && (
-          <TableCaption> Error - ({data.exceptionMessage})</TableCaption>
-        )}
-        <TableCaption> Users - Total ({data.totalCount})</TableCaption>
-        <Thead>
-          <Tr>
-            <Th textAlign="center">ID </Th>
-            <Th textAlign="center">Apartment Id</Th>
-            <Th textAlign="center">Name</Th>
-            <Th textAlign="center">Email</Th>
-            <Th textAlign="center">Phone Number</Th>
-            <Th textAlign="center">Identity Number (T.C Number)</Th>
-            <Th textAlign="center">Car Plate Number</Th>
-            <Th textAlign="center">Edit</Th>
-            <Th textAlign="center">Delete</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {data.isSuccess &&
-            data.list.map((item) => (
-              <Tr key={item.id}>
-                <Th textAlign="center">{item.id}</Th>
-                <Th textAlign="center">
-                  {item.apartmentId === null || item.apartmentId === 0
-                    ? "-"
-                    : item.apartmentId}
-                </Th>
-                <Th textTransform="capitalize" textAlign="center">
-                  {item.name}
-                </Th>
-                <Th textTransform={"lowercase"} textAlign="center">
-                  <a href={`mailto:${item.email}`}>{item.email}</a>
-                </Th>
-                <Th textAlign="center">
-                  <a href={`tel:+90${item.phoneNum}`}>+90{item.phoneNum}</a>
-                </Th>
-                <Th textAlign="center">{item.identityNum}</Th>
-                <Th textAlign="center">
-                  {item.carPlateNum === null || item.carPlateNum === ""
-                    ? "-"
-                    : item.carPlateNum}
-                </Th>
-                <Th textAlign="center">
-                  <Link to={`./${item.id}`}>
-                    <Tooltip label="Edit user." size="sm" openDelay={50}>
-                      <Button size={"sm"} colorScheme={"blue"}>
-                        <FiEdit />
-                      </Button>
-                    </Tooltip>
-                  </Link>
-                </Th>
-                <Th textAlign="center">
-                  <Tooltip label="Delete user." size="sm" openDelay={50}>
-                    <Button
-                      size={"sm"}
-                      colorScheme={"red"}
-                      disabled={deleteUserMutation.isLoading ? true : false}
-                      onClick={() => {
-                        deleteUserMutation.mutate(item.id, {
-                          onSuccess: (data) => {
-                            //   console.log(data);
-                            !data.isSuccess
-                              ? alertError(data.exceptionMessage)
-                              : alertSuccess(
-                                  `User with id:${item.id} deleted!`
-                                );
-                          },
-                        });
-                      }}
-                    >
-                      <AiFillDelete />
-                    </Button>
-                  </Tooltip>
-                </Th>
-              </Tr>
-            ))}
-        </Tbody>
-      </Table>
-    </Box>
+      <Table
+        style={{ marginRight: "2.5%", marginLeft: "2.5%" }}
+        loading={isLoading}
+        dataSource={data.list}
+        columns={columns}
+        rowKey="id"
+        scroll={{ y: "70vh" }}
+        // pagination={{
+        //   defaultPageSize: 20,
+        //   simple: true,
+        //   position: ["topRight", "bottomRight"],
+        // }}
+        pagination={false}
+      ></Table>
+    </>
   );
 }
 

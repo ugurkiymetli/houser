@@ -42,43 +42,40 @@ function Apartment() {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      sorter: {
-        compare: (a, b) => a.id - b.id,
-      },
+      sorter: (a, b) => a.id - b.id,
     },
     {
       title: "Block",
       dataIndex: "block",
       key: "block",
-      sorter: {
-        compare: (a, b) => a.block - b.block,
-      },
+      sorter: (a, b) => a.block.localeCompare(b.block),
     },
     {
       title: "Number",
       dataIndex: "number",
       key: "number",
+      sorter: (a, b) => a.number - b.number,
     },
     {
       title: "Floor",
       dataIndex: "floor",
       key: "floor",
+      sorter: (a, b) => a.floor - b.floor,
     },
     {
       title: "Resident Id",
       dataIndex: "residentId",
       key: "residentId",
-      sorter: {
-        compare: (a, b) => a.residentId - b.residentId,
-      },
+      render: (record) => (
+        <p>{record === null || record === 0 ? "-" : record}</p>
+      ),
+      sorter: (a, b) => a.residentId - b.residentId,
     },
     {
       title: "Type",
       dataIndex: "type",
       key: "type",
-      sorter: {
-        compare: (a, b) => a.type - b.type,
-      },
+      sorter: (a, b) => a.type.localeCompare(b.type),
       responsive: ["lg"],
     },
     {
@@ -91,9 +88,7 @@ function Apartment() {
         </Checkbox>
       ),
       responsive: ["lg"],
-      sorter: {
-        compare: (a, b) => a.isEmpty - b.isEmpty,
-      },
+      sorter: (a, b) => a.isEmpty - b.isEmpty,
     },
     {
       title: "Action",
