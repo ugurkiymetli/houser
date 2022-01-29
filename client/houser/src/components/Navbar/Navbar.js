@@ -1,93 +1,83 @@
-import { Box, Flex, Button, Stack, Tooltip } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import { FiUsers, FiUser } from "react-icons/fi";
-import { MdOutlinePayments, MdLogout, MdApartment } from "react-icons/md";
-import { TiMessages } from "react-icons/ti";
-import { IoIosRocket } from "react-icons/io";
+import { Button, Menu, Space } from "antd";
+import {
+  RocketOutlined,
+  UserOutlined,
+  AppstoreOutlined,
+  MessageOutlined,
+  DollarOutlined,
+  ProfileOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./styles.module.css";
+import { Link } from "react-router-dom";
 function Navbar() {
-  const { user, isLoggedIn, isAdmin, logout } = useAuth();
+  const { isAdmin, logout } = useAuth();
 
   return (
     <>
-      <Box bg={"gray.100"} px={4} className={styles.nav}>
-        <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <Box className={styles.hero}>
-            <Button variant="Link" fontSize={"lg"} href={"#"}>
-              <IoIosRocket />
-              Houser{isAdmin ? " - Admin" : null}
-            </Button>
-          </Box>
-          {/* if user is not logged in */}
-          {!isLoggedIn && (
-            <Stack
-              flex={{ base: 1, md: 0 }}
-              justify={"flex-end"}
-              direction={"row"}
-              spacing={6}
-            >
-              <Link to="/register">
-                <Button variant="solid" colorScheme="gray" href={"#"}>
-                  Sign In
-                </Button>
+      <Menu mode="horizontal">
+        <Space className={styles.menu} direction="horizontal">
+          <Space className={styles.menuLeft}>
+            <Menu.Item key="hero">
+              <Button size="large" type="text" icon={<RocketOutlined />}>
+                Houser{isAdmin ? " - Admin" : null}
+              </Button>
+            </Menu.Item>
+          </Space>
+          <Space className={styles.menuRight}>
+            {isAdmin ? (
+              <>
+                <Menu.Item key="Apartments">
+                  <Link to="/apartments">
+                    <Button size="large" icon={<AppstoreOutlined />}>
+                      Apartments{" "}
+                    </Button>{" "}
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key="Users">
+                  <Link to="/users">
+                    <Button size="large" icon={<UserOutlined />}>
+                      Users{" "}
+                    </Button>{" "}
+                  </Link>
+                </Menu.Item>
+              </>
+            ) : null}
+            <Menu.Item key="Payments">
+              <Link to="/payments">
+                <Button size="large" icon={<DollarOutlined />}>
+                  Payments{" "}
+                </Button>{" "}
               </Link>
-              <Link to="/login">
-                <Button variant="solid" colorScheme="gray" href={"#"}>
-                  Sign Up
-                </Button>
+            </Menu.Item>
+            <Menu.Item key="Messages">
+              <Link to="/messages">
+                <Button size="large" icon={<MessageOutlined />}>
+                  Messages{" "}
+                </Button>{" "}
               </Link>
-            </Stack>
-          )}
-          {/* if user logged in */}
-          {isLoggedIn && (
-            <Flex alignItems={"center"}>
-              <Stack direction={"row"} spacing={isAdmin ? 2 : 6}>
-                {/* if user is admin */}
-                {isAdmin && (
-                  <>
-                    <Link to="/apartments">
-                      <Button variant="outline" colorScheme="black" href={"#"}>
-                        <MdApartment />
-                        Apartments
-                      </Button>
-                    </Link>
-                    <Link to="/users">
-                      <Button variant="outline" colorScheme="black" href={"#"}>
-                        <FiUsers />
-                        Users
-                      </Button>
-                    </Link>
-                  </>
-                )}
-                <Link to="/payments">
-                  <Button variant="outline" colorScheme="black" href={"#"}>
-                    <MdOutlinePayments />
-                    Payments
-                  </Button>
-                </Link>
-                <Link to="/messages">
-                  <Button variant="outline" colorScheme="black" href={"#"}>
-                    <TiMessages />
-                    Messages
-                  </Button>
-                </Link>
-                <Link to="/profile">
-                  <Button variant="ghost" colorScheme="black" mr={0} href={"#"}>
-                    <FiUser />
-                    {user.name.split(" ")[0]}
-                  </Button>
-                </Link>
-                <Tooltip label="Logout" placement="bottom">
-                  <Button colorScheme="red" variant="ghost" onClick={logout}>
-                    <MdLogout style={{ fontSize: "1.5rem" }} />
-                  </Button>
-                </Tooltip>
-              </Stack>
-            </Flex>
-          )}
-        </Flex>
-      </Box>
+            </Menu.Item>
+            <Menu.Item key="Profile">
+              <Link to="/profile">
+                <Button size="large" icon={<ProfileOutlined />}>
+                  Profile{" "}
+                </Button>{" "}
+              </Link>
+            </Menu.Item>
+            <Menu.Item>
+              <Button
+                size="large"
+                danger
+                onClick={logout}
+                icon={<LogoutOutlined />}
+              >
+                Logout
+              </Button>
+            </Menu.Item>
+          </Space>
+        </Space>
+      </Menu>
     </>
   );
 }

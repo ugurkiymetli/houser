@@ -156,7 +156,7 @@ function Apartment() {
         direction="horizontal"
         style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
       >
-        <Title>Apartments</Title>
+        <Title level={3}>Apartments</Title>
         <Link to="./new">
           <Tooltip title="Add Apartment!" placement="right">
             <Button

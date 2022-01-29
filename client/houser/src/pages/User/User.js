@@ -175,7 +175,7 @@ function User() {
         direction="horizontal"
         style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
       >
-        <Title>Users</Title>
+        <Title level={3}>Users</Title>
         <Link to="./new">
           <Tooltip title="Add user!" placement="right">
             <Button

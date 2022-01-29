@@ -1,5 +1,12 @@
-.hero > button > svg {
-  font-size: 2.2rem;
+.menu {
+  width: 100%;
+  padding: 5px 3px;
+  justify-content: space-between;
+}
+.menuLeft svg:hover {
+  color: #ff2323;
+  animation: shake 0.5s;
+  animation-iteration-count: infinite;
 }
 .hero > button > svg:hover {
   color: #ff2323;
@@ -42,11 +49,10 @@
     transform: translate(1px, -2px) rotate(-1deg);
   }
 }
-.hero > button {
-  font-size: 1.6rem;
-  font-style: italic;
+
+.menuRight div li {
+  padding: 0px !important;
 }
-.nav svg {
-  margin-right: 5px;
-  font-size: 1.2rem;
+.menuRight div:last-child li {
+  padding-right: 10px !important;
 }

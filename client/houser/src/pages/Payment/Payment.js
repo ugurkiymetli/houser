@@ -274,7 +274,7 @@ function Payments() {
         direction="horizontal"
         style={{ marginTop: "10px", width: "100%", justifyContent: "center" }}
       >
-        <Title>Payments</Title>
+        <Title level={3}>Payments</Title>
         {isAdmin && (
           <Link to="./new">
             <Tooltip title="Add Payment!" placement="right">
