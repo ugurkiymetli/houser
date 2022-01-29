@@ -16,68 +16,69 @@ function Navbar() {
 
   return (
     <>
-      <Menu mode="horizontal">
-        <Space className={styles.menu} direction="horizontal">
-          <Space className={styles.menuLeft}>
-            <Menu.Item key="hero">
-              <Button size="large" type="text" icon={<RocketOutlined />}>
-                Houser{isAdmin ? " - Admin" : null}
-              </Button>
-            </Menu.Item>
-          </Space>
-          <Space className={styles.menuRight}>
+      <Space className={styles.menu} direction="horizontal">
+        <Space className={styles.menuLeft}>
+          <Button size="large" type="text" icon={<RocketOutlined />}>
+            Houser{isAdmin ? " - Admin" : null}
+          </Button>
+        </Space>
+        <Space className={styles.menuRight}>
+          <Menu mode="horizontal" disabledOverflow={false}>
             {isAdmin ? (
               <>
-                <Menu.Item key="Apartments">
+                <Menu.Item key="apartments">
                   <Link to="/apartments">
-                    <Button size="large" icon={<AppstoreOutlined />}>
-                      Apartments{" "}
-                    </Button>{" "}
+                    <Button
+                      size="large"
+                      type="text"
+                      icon={<AppstoreOutlined />}
+                    >
+                      Apartments
+                    </Button>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key="Users">
+                <Menu.Item key="users">
                   <Link to="/users">
-                    <Button size="large" icon={<UserOutlined />}>
-                      Users{" "}
-                    </Button>{" "}
+                    <Button size="large" type="text" icon={<UserOutlined />}>
+                      Users
+                    </Button>
                   </Link>
                 </Menu.Item>
               </>
             ) : null}
-            <Menu.Item key="Payments">
+            <Menu.Item key="payments">
               <Link to="/payments">
-                <Button size="large" icon={<DollarOutlined />}>
-                  Payments{" "}
-                </Button>{" "}
+                <Button size="large" type="text" icon={<DollarOutlined />}>
+                  Payments
+                </Button>
               </Link>
             </Menu.Item>
-            <Menu.Item key="Messages">
+            <Menu.Item key="messages">
               <Link to="/messages">
-                <Button size="large" icon={<MessageOutlined />}>
-                  Messages{" "}
-                </Button>{" "}
+                <Button size="large" type="text" icon={<MessageOutlined />}>
+                  Messages
+                </Button>
               </Link>
             </Menu.Item>
-            <Menu.Item key="Profile">
+            <Menu.Item key="profile">
               <Link to="/profile">
-                <Button size="large" icon={<ProfileOutlined />}>
-                  Profile{" "}
-                </Button>{" "}
+                <Button size="large" type="text" icon={<ProfileOutlined />}>
+                  Profile
+                </Button>
               </Link>
             </Menu.Item>
-            <Menu.Item>
+            <Menu.Item key="logout">
               <Button
                 size="large"
+                type="text"
                 danger
                 onClick={logout}
                 icon={<LogoutOutlined />}
-              >
-                Logout
-              </Button>
+              ></Button>
             </Menu.Item>
-          </Space>
+          </Menu>
         </Space>
-      </Menu>
+      </Space>
     </>
   );
 }
